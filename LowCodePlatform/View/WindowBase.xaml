@@ -1,0 +1,164 @@
+﻿<Window x:Class="LowCodePlatform.View.WindowBase"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.View"
+             xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock" 
+             xmlns:avalon="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             mc:Ignorable="d" 
+             WindowStartupLocation="CenterScreen"
+             Height="800" Width="1300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="文件"> 
+                <MenuItem Header="打开" x:Name="MenuItem_Open"/>
+                <MenuItem Header="保存" x:Name="MenuItem_Save"/>
+                <MenuItem Header="另存为" x:Name="MenuItem_SaveAs"/>
+                <MenuItem Header="设置" x:Name="MenuItem_Setup" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="编辑">
+                <MenuItem Header="撤销" IsEnabled="False"/>
+                <MenuItem Header="重做" IsEnabled="False"/>
+                <MenuItem Header="复制" IsEnabled="False"/>
+                <MenuItem Header="粘贴" IsEnabled="False"/>
+                <MenuItem Header="删除" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem x:Name="MenuItem_SubView" Header="视图">
+                <MenuItem Header="恢复默认视图" x:Name="MenuItem_RestoreDefaultView"/>
+                <MenuItem Header="工程区" x:Name="MenuItem_ProjectArea"/>
+                <MenuItem Header="选项区" x:Name="MenuItem_OptionArea"/>
+                <MenuItem Header="组合区" x:Name="MenuItem_CombinationArea"/>
+                <MenuItem Header="显示区" x:Name="MenuItem_DisplayArea"/>
+                <MenuItem Header="日志区" x:Name="MenuItem_LogArea"/>
+                <MenuItem Header="交互区" x:Name="MenuItem_InteractiveArea"/>
+            </MenuItem>
+            <MenuItem Header="工具">
+                <MenuItem Header="截图" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="语言">
+                <MenuItem Header="中文" IsEnabled="False"/>
+                <MenuItem Header="English" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="帮助">
+                <MenuItem Header="帮助文档" IsEnabled="False"/>
+                <MenuItem Header="版本信息" IsEnabled="False"/>
+            </MenuItem>
+        </Menu>
+
+        <ToolBar Grid.Row="1" Background="Transparent" >
+            <Button x:Name="Button_Open" Margin="0,0,20,0" ToolTip="打开">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_Open" Width="40" Height="40"/>
+                    <TextBlock Text="打开" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="Button_Save" Margin="0,0,20,0" ToolTip="保存">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_Save" Width="40" Height="40"/>
+                    <TextBlock Text="保存" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="Button_RunOnce" Margin="0,0,20,0" ToolTip="运行一次">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_RunOnce" Width="40" Height="40"/>
+                    <TextBlock Text="运行一次" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="Button_RunLoop" Margin="0,0,20,0" ToolTip="循环运行">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_RunLoop" Width="40" Height="40"/>
+                    <TextBlock Text="循环运行" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="Button_RunStop" Margin="0,0,20,0" ToolTip="停止">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_RunStop" Width="40" Height="40"/>
+                    <TextBlock Text="停止" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="Button_GlobalVariable" Margin="0,0,20,0" ToolTip="全局变量">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_GlobalVariable" Width="40" Height="40"/>
+                    <TextBlock Text="全局变量" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button  x:Name="Button_GlobalResource" Margin="0,0,20,0" ToolTip="全局资源">
+                <StackPanel Orientation="Vertical">
+                    <Image x:Name="Image_GlobalResource" Width="40" Height="40"/>
+                    <TextBlock Text="全局资源" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </ToolBar>
+
+        <avalon:DockingManager x:Name="DockManager" Grid.Row="2">
+            <!--avalon的LayoutRoot在DockingManager中，只能使用一次，多次使用或者嵌套使用会导致保存恢复存在问题-->
+            <avalon:LayoutRoot x:Name="LayoutRoot">
+                <avalon:LayoutPanel Orientation="Horizontal">
+                    <avalon:LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="250">
+
+                        <avalon:LayoutAnchorablePane>
+                            <avalon:LayoutAnchorable x:Name="LayoutAnchorable_ProjectArea" Title="工程区" ContentId="工程区">
+                                <Grid x:Name="Grid_ProjectArea"/>
+                            </avalon:LayoutAnchorable>
+                        </avalon:LayoutAnchorablePane>
+
+                        <avalon:LayoutAnchorablePane>
+                            <avalon:LayoutAnchorable x:Name="LayoutAnchorable_OptionArea" Title="选项区" ContentId="选项区">
+                                <Grid x:Name="Grid_OptionArea"/>
+                            </avalon:LayoutAnchorable>
+                        </avalon:LayoutAnchorablePane>
+
+                    </avalon:LayoutAnchorablePaneGroup>
+
+                    <avalon:LayoutDocumentPaneGroup>
+                        <avalon:LayoutDocumentPane x:Name="LayoutDocumentPane_CombinationArea">
+                            <avalon:LayoutAnchorable x:Name="LayoutAnchorable_CombinationArea" Title="组合区" ContentId="组合区">
+                                <Grid x:Name="Grid_CombinationArea"/>
+                            </avalon:LayoutAnchorable>
+                        </avalon:LayoutDocumentPane>
+                    </avalon:LayoutDocumentPaneGroup>
+
+                    <avalon:LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="750">
+                        <avalon:LayoutAnchorablePane x:Name="LayoutAnchorablePane_DisplayArea" DockHeight="3*">
+                            <avalon:LayoutAnchorable x:Name="LayoutAnchorable_DisplayArea" Title="显示区" ContentId="显示区">
+                                <TextBlock Text="占个位置，并不显示" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </avalon:LayoutAnchorable>
+                        </avalon:LayoutAnchorablePane>
+
+                        <avalon:LayoutAnchorablePaneGroup DockHeight="*">
+                            <avalon:LayoutAnchorablePane>
+                                <avalon:LayoutAnchorable x:Name="LayoutAnchorable_LogArea" Title="日志区" ContentId="日志区">
+                                    <Grid x:Name="Grid_LogArea"/>
+                                </avalon:LayoutAnchorable>
+                            </avalon:LayoutAnchorablePane>
+
+                            <avalon:LayoutAnchorablePane>
+                                <avalon:LayoutAnchorable x:Name="LayoutAnchorable_InteractiveArea" Title="交互区" ContentId="交互区">
+                                    <Grid x:Name="Grid_InteractiveArea"/>
+                                </avalon:LayoutAnchorable>
+                            </avalon:LayoutAnchorablePane>
+                        </avalon:LayoutAnchorablePaneGroup>
+
+                    </avalon:LayoutAnchorablePaneGroup>
+
+                </avalon:LayoutPanel>
+            </avalon:LayoutRoot>
+        </avalon:DockingManager>
+
+        <Border Grid.Row="3" Background="AliceBlue" Height="20"/>
+    </Grid>
+</Window>

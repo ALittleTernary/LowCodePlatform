@@ -1,0 +1,193 @@
+﻿<UserControl x:Class="LowCodePlatform.Plugin.Res_Tcp.ResView_TcpSever"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Res_Tcp"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TextBlock_IP" 
+                       Text="监控IP地址" 
+                       ToolTip="0.0.0.0为监控所有地址，127.0.0.1为监控本机地址"
+                       Grid.Row="1" 
+                       Grid.Column="0"/>
+                <TextBox x:Name="TextBox_IP" 
+                     Grid.Row="1" 
+                     Grid.Column="1"/>
+
+                <TextBlock x:Name="TextBlock_Port" 
+                       Text="端口Port号"
+                       ToolTip="知名端口范围在0-1023，由IANA分配。注册端口在1024-49151，由开发者分配，此处推荐端口号设置在此范围，比较知名8080经常作为Web服务器（如 Apache、Nginx、Tomcat 等）的备用端口，通常用于开发、测试或本地部署，而标准的HTTP端口是80。49152-65535范围，通常由操作系统动态分配给客户端应用程序，用于临时连接。"
+                       Grid.Row="2" 
+                       Grid.Column="0"/>
+                <TextBox x:Name="TextBox_Port" 
+                     Grid.Row="2" 
+                     Grid.Column="1"/>
+                <DataGrid x:Name ="DataGrid_Client"  
+                     Grid.Row="3"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="2"
+                     Background="Transparent"
+                     IsReadOnly="False"
+                     CanUserAddRows="False"
+                     CanUserSortColumns="False"
+                     AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn 
+                        Header="序号" 
+                        IsReadOnly="True" 
+                        Binding="{Binding SerialNum}" 
+                        Width="Auto"/>
+                        <DataGridTextColumn 
+                        Header="时间" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ActionTime}"
+                        Width="Auto"/>
+                        <DataGridTextColumn 
+                        Header="客户端" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ClientAddress}" 
+                        Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+            <!-- 分隔条 -->
+            <GridSplitter 
+            Grid.Column="1" 
+            Grid.Row="0"
+            Width="5" 
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch" 
+            ResizeDirection="Columns" 
+            Background="Transparent" />
+
+            <Grid Grid.Column="2" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <DataGrid x:Name ="DataGrid_Send"  
+                     Grid.Row="0"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="4"
+                     Background="Transparent"
+                     IsReadOnly="False"
+                     CanUserAddRows="False"
+                     CanUserSortColumns="False"
+                     AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn 
+                        Header="时间" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ActionTime}"
+                        Width="Auto"/>
+                        <DataGridTextColumn 
+                        Header="服务端广播数据" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ServerToClientMsg}" 
+                        Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Text="发送文本" Grid.Row="1" Grid.Column="0" Margin="5,5,5,0" VerticalAlignment="Center"/>
+                <TextBox x:Name="TextBox_SendMessage" Grid.Row="1" Grid.Column="1" AcceptsReturn ="True" Margin="5,5,5,0"/>
+                <Button x:Name="Button_SendMessage" Grid.Row="1" Grid.Column="2" Content="发送" Margin="5,5,5,0" VerticalAlignment="Center"/>
+                <Button x:Name="Button_ClearMessage" Grid.Row="1" Grid.Column="3" Content="清空" Margin="5,5,5,0" VerticalAlignment="Center"/>
+
+                <!-- 分隔条 -->
+                <GridSplitter 
+                Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="4"
+                Height="5" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                ResizeDirection="Rows" 
+                Background="Transparent" />
+
+                <DataGrid x:Name ="DataGrid_Receive"  
+                     Grid.Row="3"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="4"
+                     Background="Transparent"
+                     IsReadOnly="False"
+                     CanUserAddRows="False"
+                     CanUserSortColumns="False"
+                     AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn 
+                        Header="时间" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ActionTime}"
+                        Width="Auto"/>
+                        <DataGridTextColumn 
+                        Header="客户端" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ClientAddress}"
+                        Width="Auto"/>
+                        <DataGridTextColumn 
+                        Header="数据" 
+                        IsReadOnly="True" 
+                        Binding="{Binding ClientToServerMsg}" 
+                        Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button x:Name="Button_TurnOnRes" 
+                    Grid.Column="1" 
+                    Content="启动资源"  
+                    Margin="5"/>
+            <Button x:Name="Button_TurnOffRes" 
+                    Grid.Column="2" 
+                    Content="关闭资源"  
+                    Margin="5"/>
+        </Grid>
+    </Grid>
+</UserControl>

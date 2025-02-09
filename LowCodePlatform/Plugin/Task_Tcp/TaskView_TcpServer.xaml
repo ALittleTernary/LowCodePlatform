@@ -1,0 +1,76 @@
+﻿<Window x:Class="LowCodePlatform.Plugin.Task_Tcp.TaskView_TcpServer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Task_Tcp"
+             xmlns:custom="clr-namespace:LowCodePlatform.Plugin.Base"
+             mc:Ignorable="d" 
+             Height="450" 
+             Width="350">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <custom:LinkEdit x:Name="LinkEdit_TcpServer" 
+                             Grid.Row="0" 
+                             Grid.Column="0"
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkContentType="kResource"
+                             LinkLabelText="Tcp服务端"/>
+
+            <TabControl x:Name="TabControl_Option" Grid.Row="1" >
+                <TabItem Header="发送数据">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <custom:LinkEdit x:Name="LinkEdit_SendData"
+                             Grid.Row="0"
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkContentType="kString"
+                             LinkLabelText="发送数据"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="接收数据">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <custom:LinkEdit x:Name="LinkEdit_ReceiveOvertime"
+                             Grid.Row="0"
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkContentType="kDouble"
+                             LinkLabelText="接收超时"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="Button_Execute" Grid.Column="1" Content="执行"  Margin="5,0,5,5" />
+            <Button x:Name="Button_Confirm" Grid.Column="2" Content="确定" Margin="5,0,5,5"/>
+        </Grid>
+    </Grid>
+</Window>

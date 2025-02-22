@@ -32,6 +32,7 @@
                 <MenuItem Header="删除" IsEnabled="False"/>
             </MenuItem>
             <MenuItem x:Name="MenuItem_SubView" Header="视图">
+                <MenuItem Header="允许界面编辑" x:Name="MenuItem_SubViewEdit" IsChecked="True"/>
                 <MenuItem Header="恢复默认视图" x:Name="MenuItem_RestoreDefaultView"/>
                 <MenuItem Header="工程区" x:Name="MenuItem_ProjectArea"/>
                 <MenuItem Header="选项区" x:Name="MenuItem_OptionArea"/>

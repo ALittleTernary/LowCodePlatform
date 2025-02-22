@@ -200,6 +200,15 @@ namespace LowCodePlatform.Plugin.Base
                     List<Mat> mats = new List<Mat>();
                     return mats.ToArray();
                 }
+                else if (_linkContentType == LinkDataType.kListDouble && !IsBind) {
+                    string input = LinkContentText;
+                    input = input.Replace("【", "[").Replace("】", "]");
+                    input = input.Trim('[', ']');
+                    input = input.Replace('，', ',');
+                    return input.Split(',')
+                                .Select(x => Convert.ToDouble(x.Trim()))
+                                .ToList();
+                }
                 else {
 
                 }
@@ -235,6 +244,11 @@ namespace LowCodePlatform.Plugin.Base
         public TextChangedEventHandler LinkContentTextChanged = null;
 
         /// <summary>
+        /// 双击标签事件，界面插件用于改变标签
+        /// </summary>
+        public MouseButtonEventHandler LabelMouseDoubleClick = null;
+
+        /// <summary>
         /// 构造函数
         /// </summary>
         public LinkEdit() {
@@ -262,6 +276,7 @@ namespace LowCodePlatform.Plugin.Base
                 LinkContentText = string.Empty;
             };
             TextBox_Link.TextChanged += Event_TextBox_TextChanged;
+            Label_Link.MouseDoubleClick += Event_Label_MouseDoubleClick;
         }
 
 
@@ -315,6 +330,10 @@ namespace LowCodePlatform.Plugin.Base
 
         private void Event_TextBox_TextChanged(object sender, TextChangedEventArgs e) {
             LinkContentTextChanged?.Invoke(sender, e);
+        }
+
+        private void Event_Label_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+            LabelMouseDoubleClick?.Invoke(sender, e);
         }
     }
 }

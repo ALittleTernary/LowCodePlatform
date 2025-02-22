@@ -2,6 +2,7 @@
 using LowCodePlatform.Plugin.Res_Tcp;
 using LowCodePlatform.View;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -237,6 +238,7 @@ namespace LowCodePlatform.Plugin.Base
             }
             Window taskViewWindow = GetTaskViewWindowByName(data.ItemName);
             TaskViewPluginBase taskViewInterface = GetTaskViewInterfaceByName(data.ItemName);
+            TaskOperationPluginBase taskOperationInterface = GetTaskOperationInterfaceByName(data.ItemName);
             if (taskViewWindow == null || taskViewInterface == null) {
                 return;
             }
@@ -246,8 +248,11 @@ namespace LowCodePlatform.Plugin.Base
             taskViewInterface.JsonToView(data.Data_JsonView);//还原界面硬编码
             taskViewInterface.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams);
             taskViewWindow.Title = data.ItemName;
+            taskOperationInterface.EngineIsRunning = true;//打开界面后允许执行
             taskViewWindow.ShowDialog();//阻塞打开
 
+            //关闭界面后不再执行
+            taskOperationInterface.EngineIsRunning = false;
             _editingItem = null;
         }
 
@@ -345,13 +350,13 @@ namespace LowCodePlatform.Plugin.Base
             foreach (var value in enumValues) {
                 //判断一下名字是否一样对应
                 LangaugeType langaugeType = (LangaugeType)value;
-                string viewName = viewInterface.GetUniqueName(langaugeType);
+                string viewName = viewInterface.UniqueName[langaugeType];
                 if (viewName == null || viewName == string.Empty) {
                     return;
                 }
                 //判断一下名字是否重复
                 foreach (var item in _subViewPluginList) {
-                    string currentViewTaskName = item.GetUniqueName(langaugeType);
+                    string currentViewTaskName = item.UniqueName[langaugeType];
                     if (currentViewTaskName == viewName) {
                         //名字重复了
                         return;
@@ -359,19 +364,6 @@ namespace LowCodePlatform.Plugin.Base
                 }
             }
             _subViewPluginList.Add(viewInterface);
-        }
-
-        /// <summary>
-        /// 注册界面插件
-        /// </summary>
-        /// <param name="viewInterface"></param>
-        /// <param name="dic"></param>
-        protected void AddSubViewPlugin(SubViewPluginBase viewInterface, Dictionary<LangaugeType, string> dic) {
-            if (viewInterface == null || dic == null) {
-                return;
-            }
-            viewInterface.SetUniqueName(dic);
-            AddSubViewPlugin(viewInterface);
         }
 
         public List<UserControl> GetSubViewUserControlList() {
@@ -529,6 +521,12 @@ namespace LowCodePlatform.Plugin.Base
             else if (message.Function == "GetResOperationInterfaceByName" && message.Content is string params_GetResOperationInterfaceByName) {
                 return GetResOperationInterfaceByName(params_GetResOperationInterfaceByName);
             }
+            else if (message.Function == "DataToJson") {
+                return DataToJson();
+            }
+            else if (message.Function == "JsonToData" && message.Content is string params_JsonToData) {
+                JsonToData(params_JsonToData);
+            }
             else {
 
             }
@@ -536,11 +534,31 @@ namespace LowCodePlatform.Plugin.Base
         }
 
         public string DataToJson() {
-            return string.Empty;
+            JObject json = new JObject();
+            json["SubViewCount"] = _subViewPluginList.Count;
+            for (int i = 0; i < _subViewPluginList.Count; i++) {
+                json[i + "_Name"] = _subViewPluginList[i].UniqueName[LangaugeType.kChinese];
+                json[i + "_SubView"] = _subViewPluginList[i].ViewToJson();
+            }
+            return json.ToString();
         }
 
         public void JsonToData(string str) {
-
+            if (string.IsNullOrEmpty(str)) { 
+                return; 
+            }
+            JObject json = JObject.Parse(str);
+            int count = (int)json["SubViewCount"];
+            if (count != _subViewPluginList.Count) {
+                return;
+            }
+            for (int i = 0; i < _subViewPluginList.Count; i++) {
+                string name = json[i + "_Name"].ToString();
+                if (name != _subViewPluginList[i].UniqueName[LangaugeType.kChinese]) { 
+                    return;
+                }
+                 _subViewPluginList[i].JsonToView(json[i + "_SubView"].ToString());
+            }
         }
 
 

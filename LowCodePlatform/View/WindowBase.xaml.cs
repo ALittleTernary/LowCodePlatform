@@ -98,7 +98,7 @@ namespace LowCodePlatform.View
                 if (subViewUserControl == null || subViewInterface == null) {
                     return;
                 }
-                string viewName = subViewInterface.GetUniqueName(LangaugeType.kChinese);
+                string viewName = subViewInterface.UniqueName[LangaugeType.kChinese];
                 LayoutAnchorable anchorable = null;
                 foreach (var item in LayoutAnchorablePane_DisplayArea.Children) {
                     if (item.ContentId != viewName || item.Title != viewName) {
@@ -220,6 +220,9 @@ namespace LowCodePlatform.View
             foreach (var subView in _pluginManager.GetSubViewUserControlList()) {
                 action_AddSubViewToMainWindow(subView);
             }
+            foreach (var subIntf in _pluginManager.GetSubViewInterfaceList()) {
+                subIntf.SetViewEditStatus(true);
+            }
             //界面插件加载完毕后，把当前界面布局存储起来作为默认布局
             _defaultLayout = func_RecordDefaultLayout();
         }
@@ -250,6 +253,13 @@ namespace LowCodePlatform.View
             MenuItem_Open.Click += Event_Button_SaveClick;
             Button_Save.Click += Event_Button_SaveClick;
             MenuItem_SaveAs.Click += Event_Button_SaveAsClick;
+
+            MenuItem_SubViewEdit.Click += (sender, e) => {
+                MenuItem_SubViewEdit.IsChecked = !MenuItem_SubViewEdit.IsChecked;
+                foreach (var interf in _pluginManager.GetSubViewInterfaceList()) {
+                    interf.SetViewEditStatus(MenuItem_SubViewEdit.IsChecked);
+                }
+            };
             MenuItem_RestoreDefaultView.Click += Event_Button_RestoreDefaultViewClick;
             MenuItem_ProjectArea.Click += (sender, e) => {
                 action_ShowSubDockView(LayoutAnchorable_ProjectArea.ContentId);
@@ -330,6 +340,7 @@ namespace LowCodePlatform.View
             json["WindowWidth"] = Width;
             json["WindowHeight"] = Height;
             json["WindowState"] = WindowState.ToString();
+            json["MenuItem_SubViewEdit"] = MenuItem_SubViewEdit.IsChecked;
 
             //开始总结所有的子界面数据
             List<(string, object)> dataList = _communicationCenter.BroadcastMessage(new CommunicationCenterMessage("WindowBase", "", "DataToJson"));
@@ -377,6 +388,7 @@ namespace LowCodePlatform.View
             json["WindowWidth"] = Width;
             json["WindowHeight"] = Height;
             json["WindowState"] = WindowState.ToString();
+            json["MenuItem_SubViewEdit"] = MenuItem_SubViewEdit.IsChecked;
 
             //开始总结所有的子界面数据
             List<(string, object)> dataList = _communicationCenter.BroadcastMessage(new CommunicationCenterMessage("WindowBase", "", "DataToJson"));
@@ -424,6 +436,10 @@ namespace LowCodePlatform.View
             Height = ((double)json["WindowHeight"]);
             if (Enum.TryParse(json["WindowState"].ToString(), out WindowState windowState)) {
                 WindowState = windowState;
+            }
+            MenuItem_SubViewEdit.IsChecked = ((bool)json["MenuItem_SubViewEdit"]);
+            foreach (var interf in _pluginManager.GetSubViewInterfaceList()) {
+                interf.SetViewEditStatus(MenuItem_SubViewEdit.IsChecked);
             }
 
             //还原子界面数据

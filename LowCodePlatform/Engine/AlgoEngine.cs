@@ -627,8 +627,8 @@ namespace LowCodePlatform.Engine
         private void SummarizeSubView(List<SubViewPluginBase> subViewDatas) {
             _subViewDictinary.Clear();
             foreach (var subView in subViewDatas) {
-                _subViewDictinary.TryAdd(subView.GetUniqueName(LangaugeType.kChinese), subView);
-                _subViewDictinary.TryAdd(subView.GetUniqueName(LangaugeType.kEnglish), subView);
+                _subViewDictinary.TryAdd(subView.UniqueName[LangaugeType.kChinese], subView);
+                _subViewDictinary.TryAdd(subView.UniqueName[LangaugeType.kEnglish], subView);
             }
         }
 

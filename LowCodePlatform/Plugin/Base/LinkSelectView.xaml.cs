@@ -110,7 +110,7 @@ namespace LowCodePlatform.Plugin.Base
                 }
                 dataGrid.Items.Add(new { 
                     String1 = LinkDataType.kView.ToString(), 
-                    String2 = subView.GetUniqueName(LangaugeType.kChinese), 
+                    String2 = subView.UniqueName[LangaugeType.kChinese], 
                     String3 = string.Join(",", taskNames), 
                     String4 = "特定任务插件才能使用" 
                 });
@@ -171,7 +171,7 @@ namespace LowCodePlatform.Plugin.Base
                         dataGrid.Items.Add(new { String1 = LinkDataType.kDouble.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<double>) && LinkDataType == LinkDataType.kListDouble) {
-
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kListDouble.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(string) && LinkDataType == LinkDataType.kString) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kString.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
@@ -374,6 +374,7 @@ namespace LowCodePlatform.Plugin.Base
                     LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListDouble:
+                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kString:
                     LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";

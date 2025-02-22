@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="LowCodePlatform.Plugin.Sub_Table.SubView_Table"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Sub_Table"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <GroupBox>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label x:Name="Label_Title"
+                       Content="标题"
+                       Grid.Row="0"/>
+
+                <Grid x:Name="Grid_Button" Grid.Row="1" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="Button_AddRow"
+                                Grid.Column="0"
+                                Content="新增行"
+                                Margin="5"/>
+                    <Button x:Name="Button_SubRow"
+                                Grid.Column="1"
+                                Content="删除行"
+                                Margin="5"/>
+                    <Button x:Name="Button_AddColumn"
+                                Grid.Column="2"
+                                Content="新增列"
+                                Margin="5"/>
+                    <Button x:Name="Button_SubColumn"
+                                Grid.Column="3"
+                                Content="删除列"
+                                Margin="5"/>
+                </Grid>
+
+                <Grid x:Name="Grid_Table" Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="Label_First" Grid.Row="0" Grid.Column="0" Content="Label-0-0" Grid.ColumnSpan="2"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

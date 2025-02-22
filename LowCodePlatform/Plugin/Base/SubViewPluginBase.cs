@@ -12,19 +12,27 @@ namespace LowCodePlatform.Plugin.Base
     public interface SubViewPluginBase
     {
         /// <summary>
-        /// 获取当前插件的中/英/?名字
-        /// 名字要求独特
-        /// 界面区根据这个显示名字
+        /// 界面独特名字
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        string GetUniqueName(LangaugeType type);
+        Dictionary<LangaugeType, string> UniqueName { get; set; }
 
         /// <summary>
-        /// 修改插件名字，一般在界面插件注册时使用，界面改个名字就能复用
+        /// 设置界面是否允许编辑
         /// </summary>
-        /// <param name="dic"></param>
-        void SetUniqueName(Dictionary<LangaugeType, string> dic);
+        /// <param name="status"></param>
+        void SetViewEditStatus(bool status);
+
+        /// <summary>
+        /// 界面存储为json
+        /// </summary>
+        /// <returns></returns>
+        string ViewToJson();
+
+        /// <summary>
+        /// json还原为界面
+        /// </summary>
+        /// <param name="str"></param>
+        void JsonToView(string str);
 
         /// <summary>
         /// 获取这个界面插件允许哪些任务插件列表链接

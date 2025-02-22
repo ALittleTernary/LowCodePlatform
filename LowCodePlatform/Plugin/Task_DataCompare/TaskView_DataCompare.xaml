@@ -1,0 +1,164 @@
+﻿<Window x:Class="LowCodePlatform.Plugin.Task_DataCompare.TaskView_DataCompare"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Task_DataCompare"
+             xmlns:custom="clr-namespace:LowCodePlatform.Plugin.Base"
+             mc:Ignorable="d" 
+             Height="450" Width="350">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="Button_AddItem" Content="新增" Margin="10" Grid.Column="0">
+                    <Button.ContextMenu>
+                        <!-- 定义菜单 -->
+                        <ContextMenu x:Name="ContextMenu_DataType"/>
+                    </Button.ContextMenu>
+                </Button>
+                <Button x:Name="Button_SubItem" Content="删除" Margin="10" Grid.Column="1"/>
+                <Button x:Name="Button_MoveUp" Content="上移" Margin="10" Grid.Column="2"/>
+                <Button x:Name="Button_MoveDown" Content="下移" Margin="10" Grid.Column="3"/>
+            </Grid>
+            
+            <GroupBox Grid.Row="1">
+                <DataGrid x:Name="DataGrid_DataCompare" 
+                                          Grid.Row="1" 
+                                          BorderThickness="0" 
+                                          Background="Transparent"
+                                          IsReadOnly="False"
+                                          CanUserAddRows="False"
+                                          CanUserSortColumns="False"
+                                          AutoGenerateColumns="False"
+                                          RowHeight="25">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn 
+                            Header="类型" 
+                            IsReadOnly="True" 
+                            Binding="{Binding DataType}" 
+                            Width="Auto"/>
+                        <DataGridTextColumn 
+                            Header="左值" 
+                            IsReadOnly="True" 
+                            Binding="{Binding LeftSurfaceValue}" 
+                            Width="*"/>
+                        <DataGridTextColumn 
+                            Header="关系" 
+                            IsReadOnly="True" 
+                            Binding="{Binding Compare}" 
+                            Width="Auto"/>
+                        <DataGridTextColumn 
+                            Header="右值" 
+                            IsReadOnly="True" 
+                            Binding="{Binding RightSurfaceValue}" 
+                            Width="*"/>
+                        <DataGridTextColumn 
+                            Header="左实" 
+                            IsReadOnly="True" 
+                            Binding="{Binding LeftActualValue}" 
+                            Width="Auto"/>
+                        <DataGridTextColumn 
+                            Header="右实" 
+                            IsReadOnly="True" 
+                            Binding="{Binding RightActualValue}" 
+                            Width="Auto"/>
+                        <DataGridTextColumn 
+                            Header="结果" 
+                            IsReadOnly="True" 
+                            Binding="{Binding Result}" 
+                            Width="Auto"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Row="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <custom:LinkEdit x:Name="LinkEdit_LeftValue" 
+                             Grid.Row="0" 
+                             Grid.Column="0" 
+                             Grid.ColumnSpan="2" 
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkLabelText="左值"/>
+
+                    <Label Grid.Row="1" 
+                           Grid.Column="0" 
+                           Content="关系" 
+                           Margin="5"/>
+                    <ComboBox x:Name="ComboBox_CompareType" 
+                              Grid.Row="1" 
+                              Grid.Column="1" 
+                              Margin="5" 
+                              VerticalContentAlignment ="Center">
+                        <ComboBox.Items>
+                            <ComboBoxItem Content="="/>
+                            <ComboBoxItem Content="&lt;"/>
+                            <ComboBoxItem Content="&gt;"/>
+                            <ComboBoxItem Content="&lt;="/>
+                            <ComboBoxItem Content="&gt;="/>
+                        </ComboBox.Items>
+                    </ComboBox>
+
+                    <custom:LinkEdit x:Name="LinkEdit_RightValue" 
+                             Grid.Row="2" 
+                             Grid.Column="0" 
+                             Grid.ColumnSpan="2" 
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkLabelText="右值"/>
+
+                    <TabControl Grid.Row="3" 
+                                Grid.Column="0" 
+                                Grid.ColumnSpan="2">
+                        <TabItem Header="备注">
+                            <TextBox x:Name="TextBox_Notes" 
+                                     AcceptsReturn="True"
+                                     BorderBrush="Transparent" 
+                                     BorderThickness="0"
+                                     ToolTip="备注"/>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="Button_Execute" Grid.Column="1" Content="执行"  Margin="5,0,5,5" />
+            <Button x:Name="Button_Confirm" Grid.Column="2" Content="确定" Margin="5,0,5,5"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -28,7 +28,6 @@ namespace LowCodePlatform.Plugin.Res_Camera
 
         private Thread _cameraThread = null;
         private CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        private bool _cameraThreadStatus = false;
 
         private USBCameraNotify _notify = null;
 

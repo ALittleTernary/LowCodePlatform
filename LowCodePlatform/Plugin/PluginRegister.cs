@@ -14,6 +14,11 @@ using System.Text;
 using System.Threading.Tasks;
 using LowCodePlatform.Plugin.Task_Tcp;
 using LowCodePlatform.Plugin.Res_Camera;
+using LowCodePlatform.Plugin.Sub_Table;
+using LowCodePlatform.Plugin.Task_Table;
+using LowCodePlatform.Plugin.Sub_LineChart;
+using LowCodePlatform.Plugin.Task_LineChart;
+using LowCodePlatform.Plugin.Task_DataCompare;
 
 namespace LowCodePlatform.Plugin
 {
@@ -33,6 +38,9 @@ namespace LowCodePlatform.Plugin
             AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_BlobAnalysis(), new TaskOperation_BlobAnalysis());//斑点分析
             AddTaskPlugin(TaskPluginType.kResourcePublic, new TaskView_Log(), new TaskOperation_Log());//打印日志
             AddTaskPlugin(TaskPluginType.kResourceObtain, new TaskView_TcpServer(), new TaskOperation_TcpServer());//tcp服务端
+            AddTaskPlugin(TaskPluginType.kDataDisplay, new TaskView_Table(), new TaskOperation_Table());//表格
+            AddTaskPlugin(TaskPluginType.kDataDisplay, new TaskView_LineChart(), new TaskOperation_LineChart());//折线图
+            AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_DataCompare(), new TaskOperation_DataCompare());//数据比较
         }
 
         /// <summary>
@@ -48,10 +56,14 @@ namespace LowCodePlatform.Plugin
         /// </summary>
         protected override void RegisterSubDockPlugin() {
             AddSubViewPlugin(new SubView_ShowImage());//显示图像
-            AddSubViewPlugin(new SubView_ShowImage(), new Dictionary<LangaugeType, string>() {
-                {LangaugeType.kChinese, "显示图像(2)"},
-                {LangaugeType.kEnglish, "ShowImage(2)"}
+            AddSubViewPlugin(new SubView_ShowImage() { 
+                UniqueName = new Dictionary<LangaugeType, string>() {
+                    {LangaugeType.kChinese, "显示图像2"},
+                    {LangaugeType.kEnglish, "ShowImage2"}
+                }
             });//显示图像，注册一个同样的界面插件，需要修改名字
+            AddSubViewPlugin(new SubView_Table());//表格
+            AddSubViewPlugin(new SubView_LineChart());//折线图
         }
     }
 }

@@ -47,31 +47,16 @@ namespace LowCodePlatform.Plugin.Sub_ShowImage
             }
         }
 
-        private Dictionary<LangaugeType, string> _uniqueLanguageName = new Dictionary<LangaugeType, string>() {
+        public Dictionary<LangaugeType, string> UniqueName { get; set; } = new Dictionary<LangaugeType, string>() {
             {LangaugeType.kChinese, "显示图像"},
             {LangaugeType.kEnglish, "ShowImage" },
         };
-
 
         /// <summary>
         /// 构造函数
         /// </summary>
         public SubView_ShowImage() {
             InitializeComponent();
-        }
-
-        public string GetUniqueName(LangaugeType type) {
-            if (!_uniqueLanguageName.ContainsKey(type)) { 
-                return string.Empty;
-            }
-            return _uniqueLanguageName[type];
-        }
-
-        public void SetUniqueName(Dictionary<LangaugeType, string> dic) {
-            if (dic == null) {
-                return;
-            }
-            _uniqueLanguageName = dic;
         }
 
         public void SwitchLanguage(LangaugeType type) {
@@ -84,6 +69,18 @@ namespace LowCodePlatform.Plugin.Sub_ShowImage
             datas.Add(showImage.OperationUniqueName(LangaugeType.kChinese));
             datas.Add(showImage.OperationUniqueName(LangaugeType.kEnglish));
             return datas;
+        }
+
+        public string ViewToJson() {
+            return string.Empty ;
+        }
+
+        public void JsonToView(string str) {
+            
+        }
+
+        public void SetViewEditStatus(bool status) {
+            
         }
     }
 }

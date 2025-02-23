@@ -120,6 +120,10 @@ namespace LowCodePlatform.View
                 }
             }));
         }
+
+        public void ClearShowLog() {
+            _logs.Clear();
+        }
     }
 
     /// <summary>
@@ -188,6 +192,10 @@ namespace LowCodePlatform.View
             RadioButton_Fatal.Checked += Event_RadioButton_Checked;
 
             RadioButton_Verbose.IsChecked = true;
+
+            Button_ClearLogShow.Click += (s, e) => {
+                _dataGridSink.ClearShowLog();
+            };
         }
 
         public object AcceptMessage(CommunicationCenterMessage message) {

@@ -20,26 +20,37 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="RadioButton_Verbose" 
                          Content="所有"
                          IsChecked="True"
-                         Grid.Column="0"/>
+                         Grid.Column="0"
+                         VerticalContentAlignment="Center"/>
             <RadioButton x:Name="RadioButton_Debug" 
                          Content="调试" 
-                         Grid.Column="1"/>
+                         Grid.Column="1"
+                         VerticalContentAlignment="Center"/>
             <RadioButton x:Name="RadioButton_Information" 
                          Content="一般" 
-                         Grid.Column="2"/>
+                         Grid.Column="2"
+                         VerticalContentAlignment="Center"/>
             <RadioButton x:Name="RadioButton_Warning" 
                          Content="警告" 
-                         Grid.Column="3"/>
+                         Grid.Column="3"
+                         VerticalContentAlignment="Center"/>
             <RadioButton x:Name="RadioButton_Error" 
                          Content="错误" 
-                         Grid.Column="4"/>
+                         Grid.Column="4"
+                         VerticalContentAlignment="Center"/>
             <RadioButton x:Name="RadioButton_Fatal" 
                          Content="致命" 
-                         Grid.Column="5"/>
+                         Grid.Column="5"
+                         VerticalContentAlignment="Center"/>
+            <Button x:Name="Button_ClearLogShow" 
+                    Content="清除显示"
+                    Grid.Column="6"
+                    Margin="5"/>
         </Grid>
 
         <DataGrid x:Name="DataGrid_Logger" 

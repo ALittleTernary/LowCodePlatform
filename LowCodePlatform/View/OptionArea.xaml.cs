@@ -76,8 +76,8 @@ namespace LowCodePlatform.View
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "while", Tag = ItemOperationType.kWhile });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "break", Tag = ItemOperationType.kBreak });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "continue", Tag = ItemOperationType.kContinue });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "串行执行", Tag = ItemOperationType.kSerial });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "并行执行", Tag = ItemOperationType.kParallel });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "串行执行", Tag = ItemOperationType.kSerial });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "并行执行", Tag = ItemOperationType.kParallel });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "停止运行当前流程", Tag = ItemOperationType.kStopFlow });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "重新运行当前流程", Tag = ItemOperationType.kReRunFlow });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "停止运行所有流程", Tag = ItemOperationType.kStopProcess });

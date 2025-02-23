@@ -298,6 +298,7 @@ namespace LowCodePlatform.Engine
                     }
                 }
                 finally {
+                    //线程字典移除当前线程，因为当前线程结束了
                     _threadDictinary.TryRemove(flowData.Name, out _);
                 }
             });
@@ -373,10 +374,11 @@ namespace LowCodePlatform.Engine
             Task task = new Task(() => {
                 try {
                     bool status = SwitchToCorrectNodeOperation(data);
-                    //更新数据到界面存储
+                    //更新数据到界面存储，单步执行需要这个，其他流程、工程执行不需要
                     Application.Current.Dispatcher.BeginInvoke(new Action(() => { data.TaskView.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams); }));
                 }
                 finally {
+                    //线程字典移除当前线程，因为当前线程结束了
                     _threadDictinary.TryRemove(data.FlowName + "." + data.ItemName, out _);
                 }
             });
@@ -399,12 +401,6 @@ namespace LowCodePlatform.Engine
         /// <param name="data"></param>
         /// <returns></returns>
         private bool SwitchToCorrectNodeOperation(TaskNode node) {
-            Action<TaskNode> action_UpdateView = (nodeData) => {
-                nodeData.ItemView.Time = nodeData.Time;
-                nodeData.ItemView.NodeStatus = nodeData.NodeStatus;
-                nodeData.ItemView.Data_InputParams = nodeData.Data_InputParams;
-                nodeData.ItemView.Data_OutputParams = nodeData.Data_OutputParams;
-            };
 
             switch (node.OperationType) {
                 case ItemOperationType.kNone:
@@ -412,18 +408,25 @@ namespace LowCodePlatform.Engine
                 //break;
                 case ItemOperationType.kCommon:
                     //更新界面该节点为运行状态
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { node.ItemView.NodeStatus = TaskNodeStatus.kRunning;}));
-                    TaskNodeStatus status = RunCommonNode(node);
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { 
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus commonStatus = RunCommonNode(node);
                     //更新该界面节点运行结束参数
-                    Application.Current.Dispatcher.BeginInvoke(action_UpdateView, node);
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
 
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
-                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicNode)) {
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicCommonNode)) {
                         return false;
                     }
-                    dicNode.Data_OutputParams = node.Data_OutputParams;
-                    dicNode.Data_InputParams = node.Data_InputParams;
+                    dicCommonNode.Data_OutputParams = node.Data_OutputParams;
+                    dicCommonNode.Data_InputParams = node.Data_InputParams;
                     break;
                 case ItemOperationType.kIf:
                     break;
@@ -440,8 +443,48 @@ namespace LowCodePlatform.Engine
                 case ItemOperationType.kContinue:
                     break;
                 case ItemOperationType.kSerial:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus serialStatus = RunSerialNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicSerialNode)) {
+                        return false;
+                    }
+                    dicSerialNode.Data_OutputParams = node.Data_OutputParams;
+                    dicSerialNode.Data_InputParams = node.Data_InputParams;
                     break;
                 case ItemOperationType.kParallel:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus parallelStatus = RunParallelNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicParallelNode)) {
+                        return false;
+                    }
+                    dicParallelNode.Data_OutputParams = node.Data_OutputParams;
+                    dicParallelNode.Data_InputParams = node.Data_InputParams;
                     break;
                 case ItemOperationType.kStopFlow:
                     break;
@@ -529,6 +572,88 @@ namespace LowCodePlatform.Engine
             stopwatch.Stop();
             data.Time = stopwatch.ElapsedMilliseconds.ToString();
             data.NodeStatus = TaskNodeStatus.kSuccess;
+            return TaskNodeStatus.kSuccess;
+        }
+
+        /// <summary>
+        /// 运行串行节点
+        /// 执行到该节点会暂停继续往下执行，先执行该节点以下的系列子节点
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private TaskNodeStatus RunSerialNode(TaskNode data) {
+            //计时开始
+            Log.Verbose(data.ItemName + "Start Success");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (data.OperationType != ItemOperationType.kSerial) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kProcessStop;
+                Log.Verbose(data.ItemName + "Finish Fail");
+                return TaskNodeStatus.kProcessStop;//算法引擎出错，整个工程停止
+            }
+
+            //串行执行
+            foreach (var childNode in data.Children) {
+                //点击了暂停
+                bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
+                if (state_NoFindValue == false || state_Pause == false) {
+                    break;
+                }
+                SwitchToCorrectNodeOperation(childNode);
+            }
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Finish Success");
+            return TaskNodeStatus.kSuccess;
+        }
+
+        /// <summary>
+        /// 运行并行节点
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private TaskNodeStatus RunParallelNode(TaskNode data) {
+            //计时开始
+            Log.Verbose(data.ItemName + "Start Success");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (data.OperationType != ItemOperationType.kParallel) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kProcessStop;
+                Log.Verbose(data.ItemName + "Finish Fail");
+                return TaskNodeStatus.kProcessStop;//算法引擎出错，整个工程停止
+            }
+
+
+            // 创建并启动多个任务
+            Task[] tasks = new Task[data.Children.Count];
+            for (int i = 0; i < data.Children.Count; i++) {
+                TaskNode childNode = data.Children[i];
+                tasks[i] = Task.Run(() => {
+                    //点击了暂停
+                    bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
+                    if (state_NoFindValue == false || state_Pause == false) {
+                        return;
+                    }
+                    SwitchToCorrectNodeOperation(childNode);
+                    ;
+                });
+            }
+
+            // 等待所有任务完成
+            Task.WhenAll(tasks).Wait();
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Finish Success");
             return TaskNodeStatus.kSuccess;
         }
 

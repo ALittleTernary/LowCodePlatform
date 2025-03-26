@@ -520,6 +520,26 @@ namespace LowCodePlatform.Engine
                     dicElseIfNode.Data_InputParams = node.Data_InputParams;
                     break;
                 case ItemOperationType.kElse:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus elseStatus = RunElseNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicElseNode)) {
+                        return false;
+                    }
+                    dicElseNode.Data_OutputParams = node.Data_OutputParams;
+                    dicElseNode.Data_InputParams = node.Data_InputParams;
                     break;
                 case ItemOperationType.kFor:
                     break;
@@ -620,6 +640,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为通用");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -698,7 +719,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "Fail");
+                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为串行");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -736,7 +757,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "Fail");
+                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为并行");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，单个流程停止
             }
 
@@ -779,7 +800,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Error(data.ItemName + "Fail");
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为if");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -876,7 +897,7 @@ namespace LowCodePlatform.Engine
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFailure;
-                    Log.Verbose(data.ItemName + "if节点运算符为false，不执行if中运行块");
+                    Log.Verbose(data.ItemName + "该节点运算符为false，不执行if中运行块");
                     return TaskNodeStatus.kFailure;
                 }
             }
@@ -908,8 +929,12 @@ namespace LowCodePlatform.Engine
                     break;
                 }
                 bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                if (!runStatus) { 
-                    break ;
+                if (!runStatus) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
                 }
             }
 
@@ -938,11 +963,11 @@ namespace LowCodePlatform.Engine
                 Log.Error(data.ItemName + "算法引擎出错，elseif输入节点为空");
                 return TaskNodeStatus.kFlowStop;
             }
-            if (data.Previous == null || data.Previous.OperationType != ItemOperationType.kIf || data.Previous.OperationType != ItemOperationType.kElseIf) {
+            if (data.Previous == null || (data.Previous.OperationType != ItemOperationType.kIf && data.Previous.OperationType != ItemOperationType.kElseIf)) {
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Error(data.ItemName + "else if节点前只应该是if或者else if");
+                Log.Error(data.ItemName + "该节点前只应该是if或者else if");
                 return TaskNodeStatus.kFlowStop;
             }
 
@@ -950,7 +975,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Error(data.ItemName + "Fail");
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为elseif");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -967,11 +992,11 @@ namespace LowCodePlatform.Engine
             //if、else if这一些控制语句往前遍历是否有执行过了的，执行过了标志位置为true
             bool ifExecutionFlag = false;
             while (true) {
-                if (tracingNode.Previous == null) {
+                if (tracingNode == null) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
-                    Log.Error(data.ItemName + "else if节点往前遍历执行状态时遇到空节点");
+                    Log.Error(data.ItemName + "该节点往前遍历执行状态时遇到空节点");
                     return TaskNodeStatus.kFlowStop;
                 }
                 //如果当前节点是else if那么正常迭代
@@ -981,14 +1006,14 @@ namespace LowCodePlatform.Engine
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
-                        Log.Error(data.ItemName + "else if往前遍历状态遇到输出异常点,输出参数不为2");
+                        Log.Error(data.ItemName + "该往前遍历状态遇到输出异常点,输出参数不为2");
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
                     if (tracingNode.Data_OutputParams.Count < 2 || tracingNode.Data_OutputParams[1].ActualParam.GetType() != typeof(bool)) {
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
-                        Log.Error(data.ItemName + "else if往前遍历状态遇到输出异常点,输出参数不为bool");
+                        Log.Error(data.ItemName + "软件框架出错，该往前遍历状态遇到输出异常点,输出参数不为bool");
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
                     bool ifResult = Convert.ToBoolean(tracingNode.Data_OutputParams[1].ActualParam);
@@ -997,7 +1022,6 @@ namespace LowCodePlatform.Engine
                         ifExecutionFlag = true;
                         break;
                     }
-                    continue;
                 }
                 //如果当前节点是if那么就要结束了
                 else if (tracingNode.OperationType == ItemOperationType.kIf) {
@@ -1006,14 +1030,14 @@ namespace LowCodePlatform.Engine
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
-                        Log.Error(data.ItemName + "else if往前遍历状态遇到输出异常点,输出参数不为2");
+                        Log.Error(data.ItemName + "该往前遍历状态遇到输出异常点,输出参数不为2");
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
                     if (tracingNode.Data_OutputParams.Count < 2 || tracingNode.Data_OutputParams[1].ActualParam.GetType() != typeof(bool)) {
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
-                        Log.Error(data.ItemName + "else if往前遍历状态遇到输出异常点,输出参数不为bool");
+                        Log.Error(data.ItemName + "软件框架出错，往前遍历状态遇到输出异常点,输出参数不为bool");
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
                     bool ifResult = Convert.ToBoolean(tracingNode.Data_OutputParams[1].ActualParam);
@@ -1031,26 +1055,19 @@ namespace LowCodePlatform.Engine
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
-                    Log.Error(data.ItemName + "else if往前遍历状态遇到空节点");
+                    Log.Error(data.ItemName + "该往前遍历状态遇到空节点");
                     return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                 }
-                if (tracingNode.OperationType == ItemOperationType.kElseIf && (tracingNode.Previous.OperationType != ItemOperationType.kIf || tracingNode.Previous.OperationType != ItemOperationType.kElseIf)) {
+                if (tracingNode.OperationType == ItemOperationType.kElseIf && tracingNode.Previous.OperationType != ItemOperationType.kIf && tracingNode.Previous.OperationType != ItemOperationType.kElseIf) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
-                    Log.Error(data.ItemName + "else if往前遍历状态遇到空节点");
+                    Log.Error(data.ItemName + "该节点之前必须为if或者elseif");
                     return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                 }
                 tracingNode = tracingNode.Previous;
             }
 
-            if (ifExecutionFlag) {
-                stopwatch.Stop();
-                data.Time = stopwatch.ElapsedMilliseconds.ToString();
-                data.NodeStatus = TaskNodeStatus.kNone;
-                Log.Verbose(data.ItemName + "None");
-                return TaskNodeStatus.kNone;
-            }
 
             data.Data_InputParams[0].ActualParam = data.Data_InputParams[0].UserParam;
             if (data.Data_InputParams[0].ActualParam == null || data.Data_InputParams[0].ActualParam.GetType() != typeof(string)) {
@@ -1133,11 +1150,20 @@ namespace LowCodePlatform.Engine
                     }
                 };
 
+                //判断是否需要串行执行，也就是之前是否有if或者elseif执行过了
+                if (ifExecutionFlag) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kNone;
+                    Log.Verbose(data.ItemName + "None");
+                    return TaskNodeStatus.kNone;
+                }
+
                 if (!ifResult) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFailure;
-                    Log.Verbose(data.ItemName + "else if节点运算符为false，不执行else if中运行块");
+                    Log.Verbose(data.ItemName + "该节点运算符为false，不执行else if中运行块");
                     return TaskNodeStatus.kFailure;
                 }
             }
@@ -1158,8 +1184,6 @@ namespace LowCodePlatform.Engine
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
-
-
             //这里就是需要执行if中的内容的了
             //串行执行
             foreach (var childNode in data.Children) {
@@ -1170,7 +1194,11 @@ namespace LowCodePlatform.Engine
                 }
                 bool runStatus = SwitchToCorrectNodeOperation(childNode);
                 if (!runStatus) {
-                    break;
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
                 }
             }
 
@@ -1187,6 +1215,137 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <returns></returns>
         private TaskNodeStatus RunElseNode(TaskNode data) {
+            //计时开始
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (data.OperationType != ItemOperationType.kElse) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为else");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+            //else if还需要判断之前节点是否有执行结果
+            TaskNode tracingNode = data.Previous;
+            //if、else if这一些控制语句往前遍历是否有执行过了的，执行过了标志位置为true
+            bool ifExecutionFlag = false;
+            while (true) {
+                if (tracingNode == null) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "该节点往前遍历执行状态时遇到空节点");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                //如果当前节点是else if那么正常迭代
+                if (tracingNode.OperationType == ItemOperationType.kElseIf) {
+                    //如果当前else if的输出都不正常，那就需要停止当前流程运行
+                    if (tracingNode.Data_OutputParams.Count != 2) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "该往前遍历状态遇到输出异常点,输出参数不为2");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+                    if (tracingNode.Data_OutputParams.Count < 2 || tracingNode.Data_OutputParams[1].ActualParam.GetType() != typeof(bool)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "软件框架出错，该往前遍历状态遇到输出异常点,输出参数不为bool");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+                    bool ifResult = Convert.ToBoolean(tracingNode.Data_OutputParams[1].ActualParam);
+                    //如果当前节点被执行了，那么执行标志位就置为true
+                    if (ifResult) {
+                        ifExecutionFlag = true;
+                        break;
+                    }
+                }
+                //如果当前节点是if那么就要结束了
+                else if (tracingNode.OperationType == ItemOperationType.kIf) {
+                    //如果当前else if的输出都不正常，那就需要停止当前流程运行
+                    if (tracingNode.Data_OutputParams.Count != 2) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "该往前遍历状态遇到输出异常点,输出参数不为2");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+                    if (tracingNode.Data_OutputParams.Count < 2 || tracingNode.Data_OutputParams[1].ActualParam.GetType() != typeof(bool)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "软件框架出错，往前遍历状态遇到输出异常点,输出参数不为bool");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+                    bool ifResult = Convert.ToBoolean(tracingNode.Data_OutputParams[1].ActualParam);
+                    //如果当前节点被执行了，那么执行标志位就置为true
+                    if (ifResult) {
+                        ifExecutionFlag = true;
+                    }
+                    break;
+                }
+                else if (tracingNode.OperationType == ItemOperationType.kElse) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "该节点之前必须为if或者elseif");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+                else {
+
+                }
+                //还要一些其他奇怪的情况就统一报错
+                if (tracingNode.Previous == null) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "该往前遍历状态遇到空节点");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+                if (tracingNode.OperationType == ItemOperationType.kElseIf && tracingNode.Previous.OperationType != ItemOperationType.kIf && tracingNode.Previous.OperationType != ItemOperationType.kElseIf) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "该节点之前必须为if或者elseif");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+                tracingNode = tracingNode.Previous;
+            }
+
+            //判断是否需要串行执行，也就是之前是否有if或者elseif执行过了
+            if (ifExecutionFlag) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kNone;
+                Log.Verbose(data.ItemName + "None");
+                return TaskNodeStatus.kNone;
+            }
+
+            //这里就是需要执行else中的内容的了
+            //串行执行
+            foreach (var childNode in data.Children) {
+                //点击了暂停
+                bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
+                if (state_NoFindValue == false || state_Pause == false) {
+                    break;
+                }
+                bool runStatus = SwitchToCorrectNodeOperation(childNode);
+                if (!runStatus) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+            }
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Success");
             return TaskNodeStatus.kSuccess;
         }
 

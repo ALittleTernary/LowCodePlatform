@@ -163,20 +163,11 @@ namespace LowCodePlatform.View
                 if (RadioButton_Verbose.IsChecked == true) {
                     _dataGridSink.LevelFilter = LogEventLevel.Verbose;
                 }
-                else if (RadioButton_Debug.IsChecked == true) {
-                    _dataGridSink.LevelFilter = LogEventLevel.Debug;
-                }
-                else if (RadioButton_Information.IsChecked == true) {
-                    _dataGridSink.LevelFilter = LogEventLevel.Information;
-                }
                 else if (RadioButton_Warning.IsChecked == true) {
                     _dataGridSink.LevelFilter = LogEventLevel.Warning;
                 }
                 else if (RadioButton_Error.IsChecked == true) {
                     _dataGridSink.LevelFilter = LogEventLevel.Error;
-                }
-                else if (RadioButton_Fatal.IsChecked == true) {
-                    _dataGridSink.LevelFilter = LogEventLevel.Fatal;
                 }
                 else { 
                 
@@ -185,11 +176,8 @@ namespace LowCodePlatform.View
                 view.Refresh();
             };
             RadioButton_Verbose.Checked += Event_RadioButton_Checked;
-            RadioButton_Debug.Checked += Event_RadioButton_Checked;
-            RadioButton_Information.Checked += Event_RadioButton_Checked;
             RadioButton_Warning.Checked += Event_RadioButton_Checked;
             RadioButton_Error.Checked += Event_RadioButton_Checked;
-            RadioButton_Fatal.Checked += Event_RadioButton_Checked;
 
             RadioButton_Verbose.IsChecked = true;
 

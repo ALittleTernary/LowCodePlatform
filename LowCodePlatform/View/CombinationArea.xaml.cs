@@ -5,6 +5,7 @@ using LowCodePlatform.Plugin.Base;
 using LowCodePlatform.View.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenCvSharp.Dnn;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -146,7 +148,7 @@ namespace LowCodePlatform.View
                 treeView.QueryContinueDrag += Event_TreeView_QueryContinueDrag;
                 treeView.DragOver += Event_TreeView_DragOver;
                 treeView.Drop += Event_TreeView_Drop;
-                treeView.MouseDoubleClick += Event_TreeView_MouseDoubleClick;
+                treeView.PreviewMouseDoubleClick += Event_TreeView_PreviewMouseDoubleClick;
                 return grid;
             };
 
@@ -912,7 +914,20 @@ namespace LowCodePlatform.View
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_TreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+        private void Event_TreeView_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e) {
+            // 阻止展开/折叠行为
+            e.Handled = true;
+
+            DependencyObject originalElement = e.OriginalSource as DependencyObject;
+            ToggleButton toggleButton = originalElement.FindVisualAncestor<ToggleButton>();
+            if (toggleButton != null && toggleButton.Name == "Expander") {
+                return;
+            }
+            TreeViewItem treeViewItem = originalElement.FindVisualAncestor<TreeViewItem>();
+            if (treeViewItem == null) {
+                return;
+            }
+
             TreeViewItem selectItem = GetTreeViewSelectItem();
             if (selectItem == null) { 
                 return; 
@@ -1111,6 +1126,46 @@ namespace LowCodePlatform.View
         /// <param name="parentItem"></param>
         /// <returns></returns>
         private TaskNode SummarizeSingleNode(TreeViewItem targetViewItem, string flowName) {
+            //获取目标item父类的所有子集,也就是拿到同层级所有子集,然后获取前一个TreeViewItem
+            Func<TreeViewItem, TreeViewItem> func_FindPreviousItems = (TreeViewItem targetItem) => {
+                if (targetItem == null) {
+                    return null;
+                }
+
+                var parent_TreeViewItem = VisualTreeHelper.GetParent(targetItem);
+                // 遍历父节点，直到找到 TreeViewItem 类型
+                while (parent_TreeViewItem != null && !(parent_TreeViewItem is TreeViewItem)) {
+                    parent_TreeViewItem = VisualTreeHelper.GetParent(parent_TreeViewItem);
+                }
+                if (parent_TreeViewItem is TreeViewItem parentItem) {
+                    ItemCollection items = parentItem.Items;
+                    // 找到当前项在父项中的索引
+                    int currentIndex = items.IndexOf(targetItem);
+
+                    if (currentIndex > 0) {
+                        // 返回前一个节点
+                        return (TreeViewItem)parentItem.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
+                    }
+                }
+
+                var parent_TreeView = VisualTreeHelper.GetParent(targetItem);
+                while (parent_TreeView != null && !(parent_TreeView is TreeView)) {
+                    parent_TreeView = VisualTreeHelper.GetParent(parent_TreeView);
+                }
+                if (parent_TreeView is TreeView treeView) {
+                    ItemCollection items = treeView.Items;
+                    // 找到当前项在父项中的索引
+                    int currentIndex = items.IndexOf(targetItem);
+
+                    if (currentIndex > 0) {
+                        // 返回前一个节点
+                        return (TreeViewItem)treeView.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
+                    }
+                }
+
+                return null;
+            };
+
             //递归获取当前item所有子项
             Func<TreeViewItem, TaskNode, TaskNode> func_CreateTreeDataNode = null;
             func_CreateTreeDataNode = (target, parent) => {
@@ -1163,55 +1218,22 @@ namespace LowCodePlatform.View
             }
             //从传入的item开始总结数据，因此不考虑传入item的父节点数据
             TaskNode currentNode = func_CreateTreeDataNode(targetViewItem, null);
-            //单步执行时会总结，整个流程执行时，会把互相之间的指针都串联起来，这个previous会被替代掉
-            currentNode.Previous = func_CreateTreeDataNode(GetPreviousNode(targetViewItem), null);
+
+
+            ////elseif/else单步执行时需要往前会总结,整个流程执行时，会把互相之间的指针都串联起来，这个previous会被替代掉
+
+            TreeViewItem iterationItem = targetViewItem;
+            TaskNode iterationNode = currentNode;
+            while (true) {
+                iterationItem = func_FindPreviousItems(iterationItem);
+                if (iterationItem == null) {
+                    break;
+                }
+                iterationNode.Previous = func_CreateTreeDataNode(iterationItem, null);
+                iterationNode = iterationNode.Previous;
+            }
+
             return currentNode;
-        }
-
-        private TreeViewItem GetPreviousNode(TreeViewItem currentItem) {
-            // 获取当前项的父项
-            DependencyObject parent = VisualTreeHelper.GetParent(currentItem);
-
-            // 向上查找直到找到 TreeViewItem
-            while (parent == null || (parent is TreeViewItem) || (parent is TreeView)) {
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-
-            // 如果没有父项或父项不是 TreeViewItem，返回 null
-            if (parent == null) 
-                return null;
-
-            
-            ItemCollection items = null;
-            if (parent is TreeViewItem) {
-                TreeViewItem parentItem = parent as TreeViewItem;
-                items = parentItem.Items;
-
-                // 找到当前项在父项中的索引
-                int currentIndex = items.IndexOf(currentItem);
-
-                if (currentIndex > 0) {
-                    // 返回前一个节点
-                    return (TreeViewItem)parentItem.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
-                }
-            }
-            else if (parent is TreeView) {
-                TreeView parentItem = parent as TreeView;
-                items = parentItem.Items;
-
-                // 找到当前项在父项中的索引
-                int currentIndex = items.IndexOf(currentItem);
-
-                if (currentIndex > 0) {
-                    // 返回前一个节点
-                    return (TreeViewItem)parentItem.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
-                }
-            }
-            else { 
-                return null;
-            }
-
-            return null; // 没有前一个节点
         }
 
         /// <summary>

@@ -25,22 +25,22 @@ namespace LowCodePlatform.Plugin.Base
         /// 继续往下执行
         /// </summary>
         kFailure = 2,
-        ///// <summary>
-        ///// 当前流程停止运行，其他流程还是正常跑的
-        ///// </summary>
-        //kFlowStop = 3,
+        /// <summary>
+        /// 当前流程停止运行，其他流程还是正常跑的
+        /// </summary>
+        kFlowStop = 3,
         ///// <summary>
         ///// 当前流程重新运行，不影响其他流程
         ///// </summary>
         //kFlowRerun = 4,
-        /// <summary>
-        /// 整个工程停止，除了资源管理器里的资源
-        /// </summary>
-        kProcessStop = 5,
-        /// <summary>
-        /// 整个工程重新运行，不影响资源管理器里的资源
-        /// </summary>
-        kProcessRerun = 6,
+        ///// <summary>
+        ///// 整个工程停止，除了资源管理器里的资源
+        ///// </summary>
+        //kProcessStop = 5,
+        ///// <summary>
+        ///// 整个工程重新运行，不影响资源管理器里的资源
+        ///// </summary>
+        //kProcessRerun = 6,
         /// <summary>
         /// 节点正在运行
         /// 插件中不应该使用，主要是由引擎通知界面item界面更新旋转图标使用，如果插件中使用，视为kFailure

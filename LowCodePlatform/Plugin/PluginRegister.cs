@@ -19,6 +19,7 @@ using LowCodePlatform.Plugin.Task_Table;
 using LowCodePlatform.Plugin.Sub_LineChart;
 using LowCodePlatform.Plugin.Task_LineChart;
 using LowCodePlatform.Plugin.Task_DataCompare;
+using LowCodePlatform.Plugin.Task_Control;
 
 namespace LowCodePlatform.Plugin
 {
@@ -30,7 +31,7 @@ namespace LowCodePlatform.Plugin
         /// <summary>
         /// 注册任务类型的插件——通用算子
         /// </summary>
-        protected override void RegisterTaskPlugin() { 
+        protected override void RegisterTaskPlugin() {
             AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_Arithmetic(), new TaskOperation_Arithmetic());//四则运算
             AddTaskPlugin(TaskPluginType.kControlStatement, new TaskView_Delay(), new TaskOperation_Delay());//延时
             AddTaskPlugin(TaskPluginType.kResourceObtain, new TaskView_ReadImage(), new TaskOperation_ReadImage());//读取图像

@@ -20,6 +20,7 @@ using LiveCharts;
 using LiveCharts.Definitions.Charts;
 using LowCodePlatform.View;
 using LowCodePlatform.Plugin.Task_LineChart;
+using LowCodePlatform.View.Base;
 
 
 namespace LowCodePlatform.Plugin.Sub_LineChart

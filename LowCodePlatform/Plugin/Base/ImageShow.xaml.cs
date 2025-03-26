@@ -24,7 +24,6 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using static LowCodePlatform.View.Win32;
 
 namespace LowCodePlatform.Plugin.Base
 {

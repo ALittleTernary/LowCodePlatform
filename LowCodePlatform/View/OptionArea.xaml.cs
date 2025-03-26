@@ -1,6 +1,7 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin;
 using LowCodePlatform.Plugin.Base;
+using LowCodePlatform.View.Base;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static LowCodePlatform.View.CombinationArea_TreeItem;
-using static System.Net.Mime.MediaTypeNames;
+using static LowCodePlatform.View.Base.CombinationArea_TreeItem;
 
 namespace LowCodePlatform.View
 {
@@ -69,9 +69,9 @@ namespace LowCodePlatform.View
 
             //控制语句
             _treeViewItem_ControlStatement = new TreeViewItem() { Header = "控制语句" , ItemContainerStyle = (Style)FindResource("StretchTreeViewItemStyle") };
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "if", Tag = ItemOperationType.kIf });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else if", Tag = ItemOperationType.kElseIf });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else", Tag = ItemOperationType.kElse });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "if", Tag = ItemOperationType.kIf });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else if", Tag = ItemOperationType.kElseIf });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else", Tag = ItemOperationType.kElse });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "for", Tag = ItemOperationType.kFor });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "while", Tag = ItemOperationType.kWhile });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "break", Tag = ItemOperationType.kBreak });
@@ -142,7 +142,7 @@ namespace LowCodePlatform.View
             TreeViewItem dragTreeItem = FindVisualParent<TreeViewItem>(result.VisualHit);
 
             //没有子项就是文件夹，别传文件夹名字
-            if (dragTreeItem.Items.Count > 0) { 
+            if (dragTreeItem == null || dragTreeItem.Items.Count > 0) { 
                 return;
             }
 
@@ -196,6 +196,9 @@ namespace LowCodePlatform.View
 
         public void InitOptionAreaOptions(List<(TaskPluginType, string)> data) {
             foreach (var item in data) {
+                if (item.Item1 == TaskPluginType.kControlStatement && (item.Item2 == "if" || item.Item2 == "else if" || item.Item2 == "for" || item.Item2 == "while")) {
+                    continue;
+                }
                 AddOptionAreaItem(item.Item1, item.Item2);
             }
         }

@@ -1,0 +1,21 @@
+﻿<Window x:Class="LowCodePlatform.View.Base.InputDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.View"
+             mc:Ignorable="d" 
+             WindowStartupLocation="CenterScreen"
+             Height="150" Width="300">
+    <Grid>
+        <Label x:Name="Label_InputText" Content="请输入内容:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBox x:Name="TextBox_InputText" Margin="30,30,30,0" 
+                 VerticalAlignment="Top" 
+                 ToolTip="请输入您的文本"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,10,0,5">
+            <Button x:Name="Button_Comfirm" Content="确定" Width="75"/>
+            <Button x:Name="Button_Cancel" Content="取消" Width="75" Margin="5,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

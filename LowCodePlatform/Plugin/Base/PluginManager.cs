@@ -1,6 +1,8 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin.Res_Tcp;
+using LowCodePlatform.Plugin.Task_Control;
 using LowCodePlatform.View;
+using LowCodePlatform.View.Base;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
@@ -56,6 +58,13 @@ namespace LowCodePlatform.Plugin.Base
     }
 
     /// <summary>
+    /// 总结当前节点之前的所有节点信息
+    /// 实际上只用于调用CombinationArea里的SummarizeBeforeNodes
+    /// </summary>
+    /// <returns></returns>
+    public delegate FlowNode SummarizeBeforeNodes();
+
+    /// <summary>
     /// 插件管理器
     /// 负责插件的注册、界面数据收集
     /// </summary>
@@ -98,9 +107,19 @@ namespace LowCodePlatform.Plugin.Base
         private RoutedEventHandler _taskSingleStepExecute = null;
 
         public PluginManager() {
+            InitControlPlugin();
             RegisterTaskPlugin();
             RegisterResourcePlugin();
             RegisterSubDockPlugin();
+        }
+
+        private void InitControlPlugin() {
+            TaskView_If taskViewIf = new TaskView_If();
+            taskViewIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewIf, new TaskOperation_If());//if
+            TaskView_ElseIf taskViewElseIf = new TaskView_ElseIf();
+            taskViewElseIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewElseIf, new TaskOperation_ElseIf());//else if
         }
 
         public void Dispose() {
@@ -336,6 +355,11 @@ namespace LowCodePlatform.Plugin.Base
                 return;
             }
             _taskSingleStepExecute = handler;
+        }
+
+        public FlowNode SummarizeBeforeNodes() {
+            FlowNode flowData = _sendMessage?.Invoke(new CommunicationCenterMessage("PluginManager", "CombinationArea", "SummarizeBeforeNodes")) as FlowNode;
+            return flowData;
         }
 
         /// <summary>

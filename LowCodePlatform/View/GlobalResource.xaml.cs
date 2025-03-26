@@ -1,6 +1,7 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin.Base;
 using LowCodePlatform.Plugin.Task_BlobAnalysis;
+using LowCodePlatform.View.Base;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;

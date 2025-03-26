@@ -2,6 +2,7 @@
 using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin;
 using LowCodePlatform.Plugin.Base;
+using LowCodePlatform.View.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,7 +23,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Shell;
-using static LowCodePlatform.View.CombinationArea_TreeItem;
+using static LowCodePlatform.View.Base.CombinationArea_TreeItem;
+
 
 namespace LowCodePlatform.View
 {
@@ -1079,16 +1081,24 @@ namespace LowCodePlatform.View
             FlowNode currentFlow = new FlowNode();
             currentFlow.Name = tab.Header.ToString();//当前流程名
 
-            foreach (var item in treeView.Items) {
-                TreeViewItem treeViewItem = item as TreeViewItem;
+            TaskNode Previous = null;
+            for (int i = 0; i < treeView.Items.Count; i++) {
+                TreeViewItem treeViewItem = treeView.Items[i] as TreeViewItem;
                 if (treeViewItem == null) {
                     continue;
                 }
                 TaskNode taskNode = SummarizeSingleNode(treeViewItem, currentFlow.Name);
-                if (taskNode == null) { 
+                if (taskNode == null) {
                     continue;
                 }
                 currentFlow.Children.Add(taskNode);
+                if (Previous == null) {
+                    Previous = taskNode;
+                    continue;
+                }
+                Previous.Next = taskNode;//当前节点就是先前节点的下一节点
+                taskNode.Previous = Previous;//先前节点的下一节点就是当前节点
+                Previous = taskNode;//此时先前节点就变为了当前节点
             }
 
             return currentFlow;
@@ -1114,7 +1124,7 @@ namespace LowCodePlatform.View
                 var node = new TaskNode();
                 node.FlowName = flowName;
                 node.ItemName = custom.SerialNumber + "." + custom.ItemName;//在工程中的唯一名字,但是当前是流程中的唯一名字，名不副实
-                node.AllowRun = custom.IsCheck;//该item是否允许运行
+                node.AllowRun = custom.Enable;//该item是否允许运行
                 node.OperationType = custom.OperationType;//该item的操作状态，是common，还是流程控制相关的while/if...
                 node.Data_InputParams = custom.Data_InputParams;//获取是值拷贝
                 node.Data_OutputParams = custom.Data_OutputParams;//获取是值拷贝
@@ -1125,6 +1135,7 @@ namespace LowCodePlatform.View
                 //父亲节点
                 node.Parent = parent;
 
+                TaskNode Previous = null;
                 //孩子节点
                 foreach (var child in target.Items) {
                     TreeViewItem childItem = child as TreeViewItem;
@@ -1136,6 +1147,13 @@ namespace LowCodePlatform.View
                         continue;
                     }
                     node.Children.Add(childNode);
+                    if (Previous == null) {
+                        Previous = childNode;
+                        continue;
+                    }
+                    Previous.Next = childNode;//当前节点就是先前节点的下一节点
+                    childNode.Previous = Previous;//先前节点的下一节点就是当前节点
+                    Previous = childNode;//此时先前节点就变为了当前节点
                 }
                 return node;
             };
@@ -1145,7 +1163,55 @@ namespace LowCodePlatform.View
             }
             //从传入的item开始总结数据，因此不考虑传入item的父节点数据
             TaskNode currentNode = func_CreateTreeDataNode(targetViewItem, null);
+            //单步执行时会总结，整个流程执行时，会把互相之间的指针都串联起来，这个previous会被替代掉
+            currentNode.Previous = func_CreateTreeDataNode(GetPreviousNode(targetViewItem), null);
             return currentNode;
+        }
+
+        private TreeViewItem GetPreviousNode(TreeViewItem currentItem) {
+            // 获取当前项的父项
+            DependencyObject parent = VisualTreeHelper.GetParent(currentItem);
+
+            // 向上查找直到找到 TreeViewItem
+            while (parent == null || (parent is TreeViewItem) || (parent is TreeView)) {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+
+            // 如果没有父项或父项不是 TreeViewItem，返回 null
+            if (parent == null) 
+                return null;
+
+            
+            ItemCollection items = null;
+            if (parent is TreeViewItem) {
+                TreeViewItem parentItem = parent as TreeViewItem;
+                items = parentItem.Items;
+
+                // 找到当前项在父项中的索引
+                int currentIndex = items.IndexOf(currentItem);
+
+                if (currentIndex > 0) {
+                    // 返回前一个节点
+                    return (TreeViewItem)parentItem.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
+                }
+            }
+            else if (parent is TreeView) {
+                TreeView parentItem = parent as TreeView;
+                items = parentItem.Items;
+
+                // 找到当前项在父项中的索引
+                int currentIndex = items.IndexOf(currentItem);
+
+                if (currentIndex > 0) {
+                    // 返回前一个节点
+                    return (TreeViewItem)parentItem.ItemContainerGenerator.ContainerFromIndex(currentIndex - 1);
+                }
+            }
+            else { 
+                return null;
+            }
+
+            return null; // 没有前一个节点
         }
 
         /// <summary>

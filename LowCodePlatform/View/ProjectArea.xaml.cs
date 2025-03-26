@@ -1,5 +1,6 @@
 ﻿using AvalonDock.Layout;
 using LowCodePlatform.Engine;
+using LowCodePlatform.View.Base;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;

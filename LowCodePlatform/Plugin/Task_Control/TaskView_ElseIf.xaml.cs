@@ -62,7 +62,7 @@ namespace LowCodePlatform.Plugin.Task_Control
             };
 
             TextBox_Expression.TextChanged += (s, e) => {
-                TextBox_Describe.Text = "else if(" + TextBox_Expression.Text + "){\n\t运行块\n\tAbs：返回指定数字的绝对值。\n\tAcos ：返回余弦为指定数字的角度。\n\tAsin ：返回正弦为指定数字的角度。\n\tAtan ：返回其切线为指定数字的角度。\n\tCeiling ：返回大于或等于指定数字的最小整数。\n\tCos ：返回指定角度的余弦值。\n\tExp ：返回 e 提高到指定幂。\n\tFloor ：返回小于或等于指定数字的最大整数。\n\tIEEERemainder ：返回将指定数字除以另一个指定数字所产生的余数。两个参数\n\tLog ：返回指定数字的对数。两个参数，第一个参数是指定的值，第二个参数是指定的对数\n\tLog10 ：返回指定数字的 10 进制对数。\n\tMax ：返回两个指定数字中的较大者。两个参数\n\tMin ：返回两个数字中的较小者。两个参数\n\tPow ：返回提高到指定幂的指定数字。两个参数，第一个参数是幂数，第二个参数是指定数字\n\tRound ：将值舍入到最接近的整数或指定的小数位数。\n\tSign ：返回一个值，该值指示数字的符号。\n\tSin ：返回指定角度的正弦波。\n\tSqrt ：返回指定数字的平方根。\n\tTan ：返回指定角度的切线。\n\tTruncate ：计算数字的整数部分。" + "\n}";
+                TextBox_Describe.Text = "else if(" + TextBox_Expression.Text + "){\n\t运行块\n\t'英文单引号'：指代字符串\n\tAbs：返回指定数字的绝对值。\n\tAcos ：返回余弦为指定数字的角度。\n\tAsin ：返回正弦为指定数字的角度。\n\tAtan ：返回其切线为指定数字的角度。\n\tCeiling ：返回大于或等于指定数字的最小整数。\n\tCos ：返回指定角度的余弦值。\n\tExp ：返回 e 提高到指定幂。\n\tFloor ：返回小于或等于指定数字的最大整数。\n\tIEEERemainder ：返回将指定数字除以另一个指定数字所产生的余数。两个参数\n\tLog ：返回指定数字的对数。两个参数，第一个参数是指定的值，第二个参数是指定的对数\n\tLog10 ：返回指定数字的 10 进制对数。\n\tMax ：返回两个指定数字中的较大者。两个参数\n\tMin ：返回两个数字中的较小者。两个参数\n\tPow ：返回提高到指定幂的指定数字。两个参数，第一个参数是幂数，第二个参数是指定数字\n\tRound ：将值舍入到最接近的整数或指定的小数位数。\n\tSign ：返回一个值，该值指示数字的符号。\n\tSin ：返回指定角度的正弦波。\n\tSqrt ：返回指定数字的平方根。\n\tTan ：返回指定角度的切线。\n\tTruncate ：计算数字的整数部分。" + "\n}";
             };
 
             Button_Confirm.Click += (s, e) => {
@@ -196,7 +196,7 @@ namespace LowCodePlatform.Plugin.Task_Control
                 DataGrid eventDataGrid = sender as DataGrid;
 
                 // 获取被双击的行（通过 VisualTreeHelper 查找当前被选中的行）
-                IfData selectedData = eventDataGrid.SelectedItem as IfData;
+                LinkData selectedData = eventDataGrid.SelectedItem as LinkData;
 
                 if (selectedData == null) {
                     return;
@@ -235,12 +235,12 @@ namespace LowCodePlatform.Plugin.Task_Control
                 //第四行
                 dataGrid.Columns.Add(new DataGridTextColumn { Header = "描述", Binding = new Binding("DataDescription"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
 
-                ObservableCollection<IfData> datas = new ObservableCollection<IfData>();
+                ObservableCollection<LinkData> datas = new ObservableCollection<LinkData>();
                 //遍历所有输出
                 for (int i = 0; i < node.Data_OutputParams.Count; i++) {
                     TaskOperationOutputParams outputParam = node.Data_OutputParams[i];
                     if (outputParam.ActualParam.GetType() == typeof(int)) {
-                        datas.Add(new IfData() {
+                        datas.Add(new LinkData() {
                             DataType = LinkDataType.kInt.ToString(),
                             DataName = i + "." + outputParam.ParamName,
                             DataOperation = string.Empty,
@@ -251,7 +251,7 @@ namespace LowCodePlatform.Plugin.Task_Control
 
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(float)) {
-                        datas.Add(new IfData() {
+                        datas.Add(new LinkData() {
                             DataType = LinkDataType.kFloat.ToString(),
                             DataName = i + "." + outputParam.ParamName,
                             DataOperation = string.Empty,
@@ -262,7 +262,7 @@ namespace LowCodePlatform.Plugin.Task_Control
 
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(double)) {
-                        datas.Add(new IfData() {
+                        datas.Add(new LinkData() {
                             DataType = LinkDataType.kDouble.ToString(),
                             DataName = i + "." + outputParam.ParamName,
                             DataOperation = string.Empty,
@@ -273,7 +273,7 @@ namespace LowCodePlatform.Plugin.Task_Control
 
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(string)) {
-                        datas.Add(new IfData() {
+                        datas.Add(new LinkData() {
                             DataType = LinkDataType.kString.ToString(),
                             DataName = i + "." + outputParam.ParamName,
                             DataOperation = string.Empty,
@@ -284,7 +284,7 @@ namespace LowCodePlatform.Plugin.Task_Control
 
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(bool)) {
-                        datas.Add(new IfData() {
+                        datas.Add(new LinkData() {
                             DataType = LinkDataType.kBool.ToString(),
                             DataName = i + "." + outputParam.ParamName,
                             DataOperation = string.Empty,

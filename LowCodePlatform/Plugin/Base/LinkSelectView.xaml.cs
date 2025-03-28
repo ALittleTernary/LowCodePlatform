@@ -1,10 +1,12 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin.Task_Control;
 using LowCodePlatform.View;
+using Newtonsoft.Json.Linq;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,11 +24,84 @@ using static OpenCvSharp.ML.DTrees;
 namespace LowCodePlatform.Plugin.Base
 {
     // 数据模型类
-    public class DataItem
+    public class LinkData : INotifyPropertyChanged
     {
-        public string Column1 { get; set; }
-        public string Column2 { get; set; }
-        public string Column4 { get; set; }
+        private string _dataType = string.Empty;
+        /// <summary>
+        /// 数据类型
+        /// </summary>
+        public string DataType
+        {
+            get { return _dataType; }
+            set {
+                _dataType = value;
+                OnPropertyChanged(nameof(DataType));
+            }
+        }
+
+        private string _dataName = string.Empty;
+        /// <summary>
+        /// 数据内容
+        /// </summary>
+        public string DataName
+        {
+            get { return _dataName; }
+            set {
+                _dataName = value;
+                OnPropertyChanged(nameof(DataName));
+            }
+        }
+
+        private string _dataOperation = string.Empty;
+        /// <summary>
+        /// 其他操作，例如数组下标选择
+        /// </summary>
+        public string DataOperation
+        {
+            get { return _dataOperation; }
+            set {
+                _dataOperation = value;
+                OnPropertyChanged(nameof(DataOperation));
+            }
+        }
+
+        private string _dataDescription = string.Empty;
+        /// <summary>
+        /// 数据描述
+        /// </summary>
+        public string DataDescription
+        {
+            get { return _dataDescription; }
+            set {
+                _dataDescription = value;
+                OnPropertyChanged(nameof(DataDescription));
+            }
+        }
+
+        public string DataToJson() {
+            JObject json = new JObject();
+            json["DataType"] = DataType;
+            json["DataName"] = DataName;
+            json["DataOperation"] = DataOperation;
+            json["DataDescription"] = DataDescription;
+            return json.ToString();
+        }
+
+        public void JsonToData(string str) {
+            if (str == null || str == string.Empty) {
+                return;
+            }
+            JObject json = JObject.Parse(str);
+            DataType = (json["DataType"].ToString());
+            DataName = (json["DataName"].ToString());
+            DataOperation = (json["DataOperation"].ToString());
+            DataDescription = (json["DataDescription"].ToString());
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string propertyName) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     /// <summary>

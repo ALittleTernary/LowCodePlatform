@@ -1,12 +1,10 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin.Base;
-using LowCodePlatform.Plugin.Task_DataCompare;
 using Newtonsoft.Json.Linq;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,12 +20,12 @@ using System.Windows.Shapes;
 
 namespace LowCodePlatform.Plugin.Task_Control
 {
-
     /// <summary>
-    /// TaskView_If.xaml 的交互逻辑
+    /// TaskView_For.xaml 的交互逻辑
     /// </summary>
-    public partial class TaskView_If : System.Windows.Window, TaskViewPluginBase
+    public partial class TaskView_For : System.Windows.Window, TaskViewPluginBase
     {
+
         /// <summary>
         /// 借用插件管理器的发送接口，能与大群通讯
         /// </summary>
@@ -39,7 +37,7 @@ namespace LowCodePlatform.Plugin.Task_Control
 
         private LinkClick _linkClick = null;
 
-        public TaskView_If() {
+        public TaskView_For() {
             InitializeComponent();
             InitEvent();
         }
@@ -65,7 +63,7 @@ namespace LowCodePlatform.Plugin.Task_Control
             };
 
             TextBox_Expression.TextChanged += (s, e) => {
-                TextBox_Describe.Text = "if(" + TextBox_Expression.Text + "){\n\t运行块\n\t'英文单引号'：指代字符串\n\tAbs：返回指定数字的绝对值。\n\tAcos ：返回余弦为指定数字的角度。\n\tAsin ：返回正弦为指定数字的角度。\n\tAtan ：返回其切线为指定数字的角度。\n\tCeiling ：返回大于或等于指定数字的最小整数。\n\tCos ：返回指定角度的余弦值。\n\tExp ：返回 e 提高到指定幂。\n\tFloor ：返回小于或等于指定数字的最大整数。\n\tIEEERemainder ：返回将指定数字除以另一个指定数字所产生的余数。两个参数\n\tLog ：返回指定数字的对数。两个参数，第一个参数是指定的值，第二个参数是指定的对数\n\tLog10 ：返回指定数字的 10 进制对数。\n\tMax ：返回两个指定数字中的较大者。两个参数\n\tMin ：返回两个数字中的较小者。两个参数\n\tPow ：返回提高到指定幂的指定数字。两个参数，第一个参数是幂数，第二个参数是指定数字\n\tRound ：将值舍入到最接近的整数或指定的小数位数。\n\tSign ：返回一个值，该值指示数字的符号。\n\tSin ：返回指定角度的正弦波。\n\tSqrt ：返回指定数字的平方根。\n\tTan ：返回指定角度的切线。\n\tTruncate ：计算数字的整数部分。" + "\n}";
+                TextBox_Describe.Text = "for(" + TextBox_Expression.Text + "){\n\t运行块\n\tint i = 0：定义变量i = 0\n\ti++：i = i + 1\n\t'英文单引号'：指代字符串\n\tAbs：返回指定数字的绝对值。\n\tAcos ：返回余弦为指定数字的角度。\n\tAsin ：返回正弦为指定数字的角度。\n\tAtan ：返回其切线为指定数字的角度。\n\tCeiling ：返回大于或等于指定数字的最小整数。\n\tCos ：返回指定角度的余弦值。\n\tExp ：返回 e 提高到指定幂。\n\tFloor ：返回小于或等于指定数字的最大整数。\n\tIEEERemainder ：返回将指定数字除以另一个指定数字所产生的余数。两个参数\n\tLog ：返回指定数字的对数。两个参数，第一个参数是指定的值，第二个参数是指定的对数\n\tLog10 ：返回指定数字的 10 进制对数。\n\tMax ：返回两个指定数字中的较大者。两个参数\n\tMin ：返回两个数字中的较小者。两个参数\n\tPow ：返回提高到指定幂的指定数字。两个参数，第一个参数是幂数，第二个参数是指定数字\n\tRound ：将值舍入到最接近的整数或指定的小数位数。\n\tSign ：返回一个值，该值指示数字的符号。\n\tSin ：返回指定角度的正弦波。\n\tSqrt ：返回指定数字的平方根。\n\tTan ：返回指定角度的切线。\n\tTruncate ：计算数字的整数部分。" + "\n}";
             };
 
             Button_Confirm.Click += (s, e) => {
@@ -99,13 +97,13 @@ namespace LowCodePlatform.Plugin.Task_Control
             if (outputParams.Count < 1 || outputParams[0].ActualParam.GetType() != typeof(string)) {
                 return;
             }
-            string ifValue = outputParams[0].ActualParam as string;
-            TextBox_Result.Text = "if(" + ifValue + "){\n\t运行块\n}";
-            if (outputParams.Count < 2 || outputParams[1].ActualParam.GetType() != typeof(bool)) {
+            string forValue = outputParams[0].ActualParam as string;
+            TextBox_Result.Text = "for(" + forValue + "){\n\t运行块\n}";
+            if (outputParams.Count < 3 || outputParams[2].ActualParam.GetType() != typeof(bool)) {
                 return;
             }
-            bool ifResult = Convert.ToBoolean(outputParams[1].ActualParam);
-            TextBox_Result.Text = "if(" + ifValue + "){\n\t运行块\n}" + "\n\n" + ifResult.ToString();
+            bool forResult = Convert.ToBoolean(outputParams[2].ActualParam);
+            TextBox_Result.Text = "for(" + forValue + "){\n\t运行块\n}" + "\n\n" + forResult.ToString();
         }
 
         public void JsonToView(string str) {
@@ -167,9 +165,9 @@ namespace LowCodePlatform.Plugin.Task_Control
         public string ViewUniqueName(LangaugeType type) {
             switch (type) {
                 case LangaugeType.kChinese:
-                    return "if";
+                    return "for";
                 case LangaugeType.kEnglish:
-                    return "if";
+                    return "for";
                 default:
                     break;
             }
@@ -356,6 +354,5 @@ namespace LowCodePlatform.Plugin.Task_Control
                 TreeView_Node.Items.Add(item);
             }
         }
-
     }
 }

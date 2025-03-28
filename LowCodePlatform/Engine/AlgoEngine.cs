@@ -2,6 +2,7 @@
 using LowCodePlatform.Plugin.Base;
 using LowCodePlatform.View;
 using LowCodePlatform.View.Base;
+using NCalc;
 using OpenCvSharp;
 using Serilog;
 using System;
@@ -9,6 +10,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,6 +19,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using System.Windows.Markup;
+using static OpenCvSharp.ML.DTrees;
 using static OpenCvSharp.ML.SVM;
 
 namespace LowCodePlatform.Engine
@@ -472,7 +476,7 @@ namespace LowCodePlatform.Engine
                     }
                     dicCommonNode.Data_OutputParams = node.Data_OutputParams;
                     dicCommonNode.Data_InputParams = node.Data_InputParams;
-
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicCommonNode, dicCommonNode);
                     break;
                 case ItemOperationType.kIf:
                     //更新界面该节点为运行状态
@@ -495,7 +499,7 @@ namespace LowCodePlatform.Engine
                     }
                     dicIfNode.Data_OutputParams = node.Data_OutputParams;
                     dicIfNode.Data_InputParams = node.Data_InputParams;
-
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicIfNode, dicIfNode);
                     break;
                 case ItemOperationType.kElseIf:
                     //更新界面该节点为运行状态
@@ -518,6 +522,7 @@ namespace LowCodePlatform.Engine
                     }
                     dicElseIfNode.Data_OutputParams = node.Data_OutputParams;
                     dicElseIfNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicElseIfNode, dicElseIfNode);
                     break;
                 case ItemOperationType.kElse:
                     //更新界面该节点为运行状态
@@ -540,14 +545,78 @@ namespace LowCodePlatform.Engine
                     }
                     dicElseNode.Data_OutputParams = node.Data_OutputParams;
                     dicElseNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicElseNode, dicElseNode);
                     break;
                 case ItemOperationType.kFor:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus forStatus = RunForNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicForNode)) {
+                        return false;
+                    }
+                    dicForNode.Data_OutputParams = node.Data_OutputParams;
+                    dicForNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicForNode, dicForNode);
                     break;
                 case ItemOperationType.kWhile:
                     break;
                 case ItemOperationType.kBreak:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus breakStatus = RunBreakNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicBreakNode)) {
+                        return false;
+                    }
+                    dicBreakNode.Data_OutputParams = node.Data_OutputParams;
+                    dicBreakNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicBreakNode, dicBreakNode);
                     break;
                 case ItemOperationType.kContinue:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus continueStatus = RunContinueNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicContinueNode)) {
+                        return false;
+                    }
+                    dicContinueNode.Data_OutputParams = node.Data_OutputParams;
+                    dicContinueNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicContinueNode, dicContinueNode);
                     break;
                 case ItemOperationType.kSerial:
                     //更新界面该节点为运行状态
@@ -570,7 +639,7 @@ namespace LowCodePlatform.Engine
                     }
                     dicSerialNode.Data_OutputParams = node.Data_OutputParams;
                     dicSerialNode.Data_InputParams = node.Data_InputParams;
-
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicSerialNode, dicSerialNode);
                     break;
                 case ItemOperationType.kParallel:
                     //更新界面该节点为运行状态
@@ -593,6 +662,7 @@ namespace LowCodePlatform.Engine
                     }
                     dicParallelNode.Data_OutputParams = node.Data_OutputParams;
                     dicParallelNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicParallelNode, dicParallelNode);
                     break;
                 case ItemOperationType.kStopFlow:
                     break;
@@ -640,7 +710,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为通用");
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为通用");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -669,7 +739,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = startStatus;
-                Log.Warning(data.ItemName + "Start Fail");
+                Log.Error(data.ItemName + "Start Fail");
                 return startStatus;
             }
             //Log.Verbose(data.ItemName + "Start Success");
@@ -679,7 +749,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = runStatus;
-                Log.Warning(data.ItemName + "Run Fail");
+                Log.Error(data.ItemName + "Run Fail");
                 return runStatus;
             }
             //Log.Verbose(data.ItemName + "Run Success");
@@ -689,7 +759,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = finishStatus;
-                Log.Warning(data.ItemName + "Finish Fail");
+                Log.Error(data.ItemName + "Finish Fail");
                 return finishStatus;
             }
             //Log.Verbose(data.ItemName + "Finish Success");
@@ -719,7 +789,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为串行");
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为串行");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
@@ -757,7 +827,7 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "算法引擎出错，该模块输入的执行类型不为并行");
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为并行");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，单个流程停止
             }
 
@@ -824,44 +894,7 @@ namespace LowCodePlatform.Engine
             //"KDouble(0.四则运算(1).2.double结果(2)) some other text KDouble(3.加法(2).4.double结果(5))"
             string ifExpression = data.Data_InputParams[0].ActualParam as string;
 
-            // 正则表达式匹配形如 KDouble(数字.操作.数字.操作) 结构的模式
-            string patternLink = @"([a-zA-Z]+)\((\d+)\.([^\.\(]+)\.(\d+)\.([^\)]+)\)";
-
-            // 使用正则表达式匹配
-            MatchCollection matches = Regex.Matches(ifExpression, patternLink);
-
-            string ifValue = Regex.Replace(ifExpression, patternLink, match => {
-                string globalStr = "[" + data.FlowName + "].[" + match.Value + "]";
-                object obj = RetrieveDataByName(globalStr);
-                if (obj == null) {
-                    return "链接为空，非法链接";
-                }
-                else if (obj.GetType() == typeof(int)) {
-                    int actualInt = Convert.ToInt32(obj);
-                    return actualInt.ToString();
-                }
-                else if (obj.GetType() == typeof(float)) {
-                    float actualFloat = (float)obj;
-                    return actualFloat.ToString();
-                }
-                else if (obj.GetType() == typeof(double)) {
-                    double actualDouble = Convert.ToDouble(obj);
-                    return actualDouble.ToString();
-                }
-                else if (obj.GetType() == typeof(string)) {
-                    string actualString = obj as string;
-                    return actualString;
-                }
-                else if (obj.GetType() == typeof(bool)) {
-                    bool actualBool = Convert.ToBoolean(obj);
-                    return actualBool.ToString();
-                }
-                return "if节点的输入参数表达式暂时只支持int/float/double/string/bool";
-            });
-
-            // 使用正则表达式匹配 "true" 或 "false"，忽略大小写
-            string patternBool = @"\b(true|false)\b";
-            ifValue = Regex.Replace(ifValue, patternBool, match => match.Value.ToLower());
+            string ifValue = ObtainResultByExpression(data.FlowName, ifExpression);
 
             // 使用 NCalc 解析并计算表达式
             var nCalcExpression = new NCalc.Expression(ifValue);
@@ -870,10 +903,18 @@ namespace LowCodePlatform.Engine
             try {
                 object nCalcResult = nCalcExpression.Evaluate();
                 if (nCalcResult.GetType() != typeof(bool)) {
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "if节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，运算结果不为bool",
+                    },
+                };
+
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
-                    Log.Warning(data.ItemName + "运算表达式出错，运算结果不为bool");
+                    Log.Error(data.ItemName + "运算表达式出错，运算结果不为bool");
                     return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                 }
 
@@ -896,9 +937,9 @@ namespace LowCodePlatform.Engine
                 if (!ifResult) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
-                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    data.NodeStatus = TaskNodeStatus.kNone;
                     Log.Verbose(data.ItemName + "该节点运算符为false，不执行if中运行块");
-                    return TaskNodeStatus.kFailure;
+                    return TaskNodeStatus.kNone;
                 }
             }
             catch (System.ArgumentException) {
@@ -914,11 +955,11 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "运算表达式出错，符号非法");
+                Log.Error(data.ItemName + "运算表达式出错，符号非法");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
 
-
+            Log.Verbose(data.ItemName + "Enter");
 
             //这里就是需要执行if中的内容的了
             //串行执行
@@ -1080,45 +1121,8 @@ namespace LowCodePlatform.Engine
 
             //"KDouble(0.四则运算(1).2.double结果(2)) some other text KDouble(3.加法(2).4.double结果(5))"
             string ifExpression = data.Data_InputParams[0].ActualParam as string;
-
-            // 正则表达式匹配形如 KDouble(数字.操作.数字.操作) 结构的模式
-            string patternLink = @"([a-zA-Z]+)\((\d+)\.([^\.\(]+)\.(\d+)\.([^\)]+)\)";
-
-            // 使用正则表达式匹配
-            MatchCollection matches = Regex.Matches(ifExpression, patternLink);
-
-            string ifValue = Regex.Replace(ifExpression, patternLink, match => {
-                string globalStr = "[" + data.FlowName + "].[" + match.Value + "]";
-                object obj = RetrieveDataByName(globalStr);
-                if (obj == null) {
-                    return "链接为空，非法链接";
-                }
-                else if (obj.GetType() == typeof(int)) {
-                    int actualInt = Convert.ToInt32(obj);
-                    return actualInt.ToString();
-                }
-                else if (obj.GetType() == typeof(float)) {
-                    float actualFloat = (float)obj;
-                    return actualFloat.ToString();
-                }
-                else if (obj.GetType() == typeof(double)) {
-                    double actualDouble = Convert.ToDouble(obj);
-                    return actualDouble.ToString();
-                }
-                else if (obj.GetType() == typeof(string)) {
-                    string actualString = obj as string;
-                    return actualString;
-                }
-                else if (obj.GetType() == typeof(bool)) {
-                    bool actualBool = Convert.ToBoolean(obj);
-                    return actualBool.ToString();
-                }
-                return "else if节点的输入参数表达式暂时只支持int/float/double/string/bool";
-            });
-
-            // 使用正则表达式匹配 "true" 或 "false"，忽略大小写
-            string patternBool = @"\b(true|false)\b";
-            ifValue = Regex.Replace(ifValue, patternBool, match => match.Value.ToLower());
+            
+            string ifValue = ObtainResultByExpression(data.FlowName, ifExpression);
 
             // 使用 NCalc 解析并计算表达式
             var nCalcExpression = new NCalc.Expression(ifValue);
@@ -1130,7 +1134,7 @@ namespace LowCodePlatform.Engine
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
-                    Log.Warning(data.ItemName + "运算表达式出错，运算结果不为bool");
+                    Log.Error(data.ItemName + "运算表达式出错，运算结果不为bool");
                     return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                 }
 
@@ -1162,9 +1166,9 @@ namespace LowCodePlatform.Engine
                 if (!ifResult) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
-                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    data.NodeStatus = TaskNodeStatus.kNone;
                     Log.Verbose(data.ItemName + "该节点运算符为false，不执行else if中运行块");
-                    return TaskNodeStatus.kFailure;
+                    return TaskNodeStatus.kNone;
                 }
             }
             catch (System.ArgumentException) {
@@ -1180,9 +1184,11 @@ namespace LowCodePlatform.Engine
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
-                Log.Warning(data.ItemName + "运算表达式出错，符号非法");
+                Log.Error(data.ItemName + "运算表达式出错，符号非法");
                 return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
             }
+
+            Log.Verbose(data.ItemName + "Enter");
 
             //这里就是需要执行if中的内容的了
             //串行执行
@@ -1324,6 +1330,8 @@ namespace LowCodePlatform.Engine
                 return TaskNodeStatus.kNone;
             }
 
+            Log.Verbose(data.ItemName + "Enter");
+
             //这里就是需要执行else中的内容的了
             //串行执行
             foreach (var childNode in data.Children) {
@@ -1362,6 +1370,710 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <returns></returns>
         private TaskNodeStatus RunForNode(TaskNode data) {
+            //计时开始
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (data.OperationType != ItemOperationType.kFor) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "算法引擎出错，该模块输入的执行类型不为for");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+            if (data.Data_InputParams.Count != 1) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "软件框架出错，for节点的输入参数必须为1");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+            data.Data_InputParams[0].ActualParam = data.Data_InputParams[0].UserParam;
+            if (data.Data_InputParams[0].ActualParam == null || data.Data_InputParams[0].ActualParam.GetType() != typeof(string)) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "软件框架出错，for节点的输入参数表达式必须为string类型且不为null");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+            //"KDouble(0.四则运算(1).2.double结果(2)) some other text KDouble(3.加法(2).4.double结果(5))"
+            string forExpression = data.Data_InputParams[0].ActualParam as string;
+
+            string forValue = ObtainResultByExpression(data.FlowName, forExpression);
+            forValue = forValue.Replace("；", ";");
+            string[] forValueArray = forValue.Split(';');
+            if (forValueArray.Length != 3) {
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数表达式必须为三段，形如for(int i = 0; i < 10; i++)",
+                    },
+                };
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "for节点的输入参数表达式必须为三段，形如for(int i = 0; i < 10; i++)");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+            //三段待解析的字符串
+            string forValue01 = forValueArray[0].Trim();
+            string forValue02 = forValueArray[1].Trim();
+            string forValue03 = forValueArray[2].Trim();
+
+
+            //************************解析第一段*****************************
+            string forVariable01 = string.Empty;
+            string forExpression01 = string.Empty;
+            if (forValue01 == string.Empty) {
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第一段，形如int i = 0，暂时不支持其他形式",
+                    },
+                };
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，形如int i = 0，暂时不支持其他形式");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+
+            //形如"int i = 0"，禁止稀奇古怪的
+            string patternValue01 = @"(\w+)\s+(\w+)\s*=\s*(\w+)";
+            // 使用正则表达式匹配字符串
+            Match matchValue01 = Regex.Match(forValue01, patternValue01);
+            if (!matchValue01.Success || matchValue01.Groups.Count != 4) {
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第一段，形如int i = 0，暂时不支持其他形式",
+                    },
+                };
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，形如int i = 0，暂时不支持其他形式");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+            string forType01 = matchValue01.Groups[1].Value.Trim();   // "int"
+            forVariable01 = matchValue01.Groups[2].Value.Trim(); // "i"
+            forExpression01 = matchValue01.Groups[3].Value.Trim(); // "0 + 1"
+            int forResult01 = 0;//初始i值
+
+            if (forType01 != "int") {
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第一段，当前只支持定义int",
+                    },
+                };
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，当前只支持定义int");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+
+            try {
+                //解析value
+                var nCalcExpression01 = new NCalc.Expression(forExpression01);
+                object nCalcResult02 = nCalcExpression01.Evaluate();
+                if (nCalcResult02.GetType() != typeof(int)) {
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第一段，运算结果不为int",
+                        },
+                    };
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，运算结果不为int");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+
+                forResult01 = Convert.ToInt32(nCalcResult02);
+                //for节点的输出
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = forValue,
+                    },
+                    new TaskOperationOutputParams(){
+                        ParamName = forVariable01,
+                        ParamType = LinkDataType.kInt,
+                        ActualParam = forResult01,
+                    },
+                    new TaskOperationOutputParams(){
+                        ParamName = forVariable01,
+                        ParamType = LinkDataType.kFloat,
+                        ActualParam = (float)forResult01,
+                    },
+                    new TaskOperationOutputParams(){
+                        ParamName = forVariable01,
+                        ParamType = LinkDataType.kDouble,
+                        ActualParam = (double)forResult01,
+                    },
+                    new TaskOperationOutputParams(){
+                        ParamName = forVariable01,
+                        ParamType = LinkDataType.kString,
+                        ActualParam = forResult01.ToString(),
+                    },
+                };
+                //向全局变量中注册该变量
+
+            }
+            catch (ArgumentException) {
+                //for节点的第一段输出
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第一段，符号非法",
+                    },
+                };
+
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，符号非法");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+
+            //************************解析第二段*****************************
+            string forValue02Expression = forValue02.Replace(forVariable01, forResult01.ToString());
+            bool forResult02 = false;
+            // 计算结果
+            try {
+                var nCalcExpression02 = new NCalc.Expression(forValue02Expression);
+                object nCalcResult02 = nCalcExpression02.Evaluate();
+                if (nCalcResult02.GetType() != typeof(bool)) {
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第二段，运算结果不为bool",
+                        },
+                    };
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第二段，运算结果不为bool");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+
+                forResult02 = Convert.ToBoolean(nCalcResult02);
+
+                //if节点的输出
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forValue,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kInt,
+                            ActualParam = forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kFloat,
+                            ActualParam = (float)forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kDouble,
+                            ActualParam = (double) forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forResult01.ToString(),
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点运行结果",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = forResult02,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "break标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "continue标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                    };
+
+                if (!forResult02) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kNone;
+                    Log.Verbose(data.ItemName + "该节点运算结果为false，不执行for中运行块");
+                    return TaskNodeStatus.kNone;
+                }
+            }
+            catch (System.ArgumentException) {
+                //if节点的输出
+                data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第二段，符号非法",
+                    },
+                };
+
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第二段，符号非法");
+                return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+            }
+
+
+            //************************解析第三段*****************************
+            string forExpression03Type01 = forVariable01 + "++";
+            string forExpression03Type02 = "++" + forVariable01;
+            string forExpression03Type03 = @"^(\w+)\s*=\s*(.*)$";
+
+            string forValue03copy = forValue03.Replace(" ", "");
+            if (forValue03 == string.Empty) {
+
+            }
+            else if (forValue03copy == forExpression03Type01 || forValue03copy == forExpression03Type02) {
+
+            }
+            else {
+                // 使用正则表达式匹配字符串
+                Match matchValue03 = Regex.Match(forValue03, forExpression03Type03);
+                if (!matchValue03.Success || matchValue03.Groups.Count != 3) {
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第三段，形如i = i + 1/i++/++i，暂时不支持其他形式",
+                        },
+                    };
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，形如i = i + 1/i++/++i，暂时不支持其他形式");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+                string forVariable03 = matchValue03.Groups[1].Value.Trim();   // "i"
+                string forExpression03 = matchValue03.Groups[2].Value.Trim(); // "i + 1"
+                if (forVariable03 != forVariable01) {
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第三段，使用的变量" + forVariable03 + "与第一段定义的变量" + forVariable01 + "名称不一致",
+                        },
+                    };
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，使用的变量" + forVariable03 + "与第一段定义的变量" + forVariable01 + "名称不一致");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+
+                forExpression03 = forExpression03.Replace(forVariable01, forResult01.ToString());
+
+                //解析value
+                try {
+                    var nCalcExpression03 = new NCalc.Expression(forExpression03);
+                    object nCalcResult03 = nCalcExpression03.Evaluate();
+                    if (nCalcResult03.GetType() != typeof(int)) {
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                            new TaskOperationOutputParams(){
+                                ParamName = "for节点表达式",
+                                ParamType = LinkDataType.kString,
+                                ActualParam = "运算表达式出错，for节点的输入参数第三段，运算结果不为int",
+                            },
+                        };
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，运算结果不为int");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+
+                    forResult01 = Convert.ToInt32(nCalcResult03);
+                    //验证阶段不更新i
+
+                }
+                catch (ArgumentException) {
+                    //for节点的第三段输出
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第三段，符号非法",
+                        },
+                    };
+
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，符号非法");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+
+            }
+            //************************根据解析运行子节点*****************************
+            Log.Verbose(data.ItemName + "Enter");
+
+            while (true) {
+                //点击了暂停
+                bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
+                if (state_NoFindValue == false || state_Pause == false) {
+                    break;
+                }
+
+
+                forValue02Expression = forValue02.Replace(forVariable01, forResult01.ToString());
+                forResult02 = false;
+                // 计算结果
+                try {
+                    var nCalcExpression02 = new NCalc.Expression(forValue02Expression);
+                    object nCalcResult02 = nCalcExpression02.Evaluate();
+                    if (nCalcResult02.GetType() != typeof(bool)) {
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                            new TaskOperationOutputParams(){
+                                ParamName = "for节点表达式",
+                                ParamType = LinkDataType.kString,
+                                ActualParam = "运算表达式出错，for节点的输入参数第二段，运算结果不为bool",
+                            },
+                        };
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第二段，运算结果不为bool");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+
+                    forResult02 = Convert.ToBoolean(nCalcResult02);
+
+                    //for节点的输出
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forValue,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kInt,
+                            ActualParam = forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kFloat,
+                            ActualParam = (float)forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kDouble,
+                            ActualParam = (double)forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forResult01.ToString(),
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点运行结果",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = forResult02,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "break标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "continue标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                    };
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + data.FlowName + "].[" + data.ItemName + "]", out TaskNode dicForNodeRefresh)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "算法引擎出错，该节点中更新参数失败");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    dicForNodeRefresh.Data_OutputParams = data.Data_OutputParams;
+                    dicForNodeRefresh.Data_InputParams = data.Data_InputParams;
+
+                    if (!forResult02) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kSuccess;
+                        Log.Verbose(data.ItemName + "Success，该节点当前运算结果为false，不再执行for中运行块");
+                        return TaskNodeStatus.kSuccess;
+                    }
+                }
+                catch (System.ArgumentException) {
+                    //if节点的输出
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                    new TaskOperationOutputParams(){
+                        ParamName = "for节点表达式",
+                        ParamType = LinkDataType.kString,
+                        ActualParam = "运算表达式出错，for节点的输入参数第二段，符号非法",
+                    },
+                };
+
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第二段，符号非法");
+                    return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                }
+
+                //这里就是需要执行for中的内容的了
+                //串行执行
+                foreach (var childNode in data.Children) {
+                    //点击了暂停
+                    state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out state_Pause);
+                    if (state_NoFindValue == false || state_Pause == false) {
+                        break;
+                    }
+
+                    bool runStatus = SwitchToCorrectNodeOperation(childNode);
+                    if (!runStatus) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+
+                    //获取全局变量中的该for节点状态，看看是否有外部对齐状态进行改变
+                    if (!_linkDataDictinary.TryGetValue("[" + data.FlowName + "].[" + data.ItemName + "]", out TaskNode dicForNodeBreak)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "算法引擎出错，该节点中更新参数失败");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    //如果for中break标志位置为了true，那么要跳出该循环
+                    if (dicForNodeBreak.Data_OutputParams.Count == 8 && dicForNodeBreak.Data_OutputParams[6] != null && dicForNodeBreak.Data_OutputParams[6].ActualParam.GetType() == typeof(bool)) {
+                        bool breakStatus = Convert.ToBoolean(dicForNodeBreak.Data_OutputParams[6].ActualParam);
+                        if (breakStatus) {
+                            stopwatch.Stop();
+                            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                            data.NodeStatus = TaskNodeStatus.kSuccess;
+                            Log.Verbose(data.ItemName + "break信号触发使得for循环提前结束");
+                            return TaskNodeStatus.kSuccess;
+                        }
+                    }
+                    //如果for中continue标志位置为了true，那么要跳过这次循环运行，并且将continue标志位置为false
+                    if (dicForNodeBreak.Data_OutputParams.Count == 8 && dicForNodeBreak.Data_OutputParams[7] != null && dicForNodeBreak.Data_OutputParams[7].ActualParam.GetType() == typeof(bool)) {
+                        bool continueStatus = Convert.ToBoolean(dicForNodeBreak.Data_OutputParams[7].ActualParam);
+                        if (continueStatus) {
+                            Log.Verbose(data.ItemName + "continue信号触发使得for循环跳过一轮");
+                            break;
+                        }
+                    }
+                }
+
+                //解析第三段
+                if (forValue03 == string.Empty) {
+
+                }
+                else if (forValue03copy == forExpression03Type01 || forValue03copy == forExpression03Type02) {
+                    forResult01 = forResult01 + 1;
+                    //运算完更新输出
+                    data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forValue,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kInt,
+                            ActualParam = forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kFloat,
+                            ActualParam = (float)forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kDouble,
+                            ActualParam = (double)forResult01,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = forVariable01,
+                            ParamType = LinkDataType.kString,
+                            ActualParam = forResult01.ToString(),
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点运行结果",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = forResult02,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "break标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                        new TaskOperationOutputParams(){
+                            ParamName = "continue标志位",
+                            ParamType = LinkDataType.kBool,
+                            ActualParam = false,
+                        },
+                    };
+                }
+                else {
+                    // 使用正则表达式匹配字符串
+                    Match matchValue03 = Regex.Match(forValue03, forExpression03Type03);
+                    if (!matchValue03.Success || matchValue03.Groups.Count != 3) {
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第三段，形如i = i + 1/i++/++i，暂时不支持其他形式",
+                        },
+                    };
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第一段，形如i = i + 1/i++/++i，暂时不支持其他形式");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+                    string forVariable03 = matchValue03.Groups[1].Value.Trim();   // "i"
+                    string forExpression03 = matchValue03.Groups[2].Value.Trim(); // "i + 1"
+                    if (forVariable03 != forVariable01) {
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                        new TaskOperationOutputParams(){
+                            ParamName = "for节点表达式",
+                            ParamType = LinkDataType.kString,
+                            ActualParam = "运算表达式出错，for节点的输入参数第三段，使用的变量" + forVariable03 + "与第一段定义的变量" + forVariable01 + "名称不一致",
+                        },
+                    };
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，使用的变量" + forVariable03 + "与第一段定义的变量" + forVariable01 + "名称不一致");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+
+                    forExpression03 = forExpression03.Replace(forVariable01, forResult01.ToString());
+
+                    //解析value
+                    var nCalcExpression03 = new NCalc.Expression(forExpression03);
+                    try {
+                        object nCalcResult03 = nCalcExpression03.Evaluate();
+                        if (nCalcResult03.GetType() != typeof(int)) {
+                            data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                                new TaskOperationOutputParams(){
+                                    ParamName = "for节点表达式",
+                                    ParamType = LinkDataType.kString,
+                                    ActualParam = "运算表达式出错，for节点的输入参数第三段，运算结果不为int",
+                                },
+                            };
+                            stopwatch.Stop();
+                            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                            data.NodeStatus = TaskNodeStatus.kFlowStop;
+                            Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，运算结果不为int");
+                            return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                        }
+
+                        forResult01 = Convert.ToInt32(nCalcResult03);
+
+                        //运算完更新输出
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                            new TaskOperationOutputParams(){
+                                ParamName = "for节点表达式",
+                                ParamType = LinkDataType.kString,
+                                ActualParam = forValue,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = forVariable01,
+                                ParamType = LinkDataType.kInt,
+                                ActualParam = forResult01,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = forVariable01,
+                                ParamType = LinkDataType.kFloat,
+                                ActualParam = (float)forResult01,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = forVariable01,
+                                ParamType = LinkDataType.kDouble,
+                                ActualParam = (double)forResult01,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = forVariable01,
+                                ParamType = LinkDataType.kString,
+                                ActualParam = forResult01.ToString(),
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = "for节点运行结果",
+                                ParamType = LinkDataType.kBool,
+                                ActualParam = forResult02,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = "break标志位",
+                                ParamType = LinkDataType.kBool,
+                                ActualParam = false,
+                            },
+                            new TaskOperationOutputParams(){
+                                ParamName = "continue标志位",
+                                ParamType = LinkDataType.kBool,
+                                ActualParam = false,
+                            },
+                        };
+                    }
+                    catch (ArgumentException) {
+                        //for节点的第三段输出
+                        data.Data_OutputParams = new List<TaskOperationOutputParams>() {
+                            new TaskOperationOutputParams(){
+                                ParamName = "for节点表达式",
+                                ParamType = LinkDataType.kString,
+                                ActualParam = "运算表达式出错，for节点的输入参数第三段，符号非法",
+                            },
+                        };
+
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Error(data.ItemName + "运算表达式出错，for节点的输入参数第三段，符号非法");
+                        return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
+                    }
+
+                }
+
+            }
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Success");
             return TaskNodeStatus.kSuccess;
         }
 
@@ -1370,6 +2082,59 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <returns></returns>
         private TaskNodeStatus RunBreakNode(TaskNode data) {
+            //计时开始
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            //先判断前面的是不是if，不是就停止流程
+            if (data == null || data.OperationType != ItemOperationType.kBreak) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "算法引擎出错，break输入节点为空或者执行类型不为break");
+                return TaskNodeStatus.kFlowStop;
+            }
+
+            TaskNode taskNode = data;
+            while (true) {
+                if (taskNode == null) {
+                    stopwatch.Stop();
+                    taskNode.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    taskNode.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(taskNode.ItemName + "该节点必须由while或者for包裹");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                if (taskNode.OperationType == ItemOperationType.kFor) {
+                    //如果for运行标志位被外部break置为了false，那么也要停止运行
+                    if (!_linkDataDictinary.TryGetValue("[" + taskNode.FlowName + "].[" + taskNode.ItemName + "]", out TaskNode dicForNodeBreak)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "算法引擎出错，该节点中更新参数失败");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    if (dicForNodeBreak.Data_OutputParams.Count != 8 || dicForNodeBreak.Data_OutputParams[6] == null || dicForNodeBreak.Data_OutputParams[6].ActualParam.GetType() != typeof(bool)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "检测到" + taskNode.ItemName + "运行状态异常");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    dicForNodeBreak.Data_OutputParams[6].ActualParam = true;
+                    break;
+                }
+                else if (taskNode.OperationType == ItemOperationType.kWhile) {
+                    break;
+                }
+                else {
+                    taskNode = taskNode.Parent;
+                }
+            }
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Success");
             return TaskNodeStatus.kSuccess;
         }
 
@@ -1378,13 +2143,74 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <returns></returns>
         private TaskNodeStatus RunContinueNode(TaskNode data) {
+            //计时开始
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            //先判断前面的是不是if，不是就停止流程
+            if (data == null || data.OperationType != ItemOperationType.kContinue) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "算法引擎出错，continue输入节点为空或者执行类型不为continue");
+                return TaskNodeStatus.kFlowStop;
+            }
+
+            TaskNode taskNode = data;
+            while (true) {
+                if (taskNode == null) {
+                    stopwatch.Stop();
+                    taskNode.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    taskNode.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Error(taskNode.ItemName + "该节点必须由while或者for包裹");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                if (taskNode.OperationType == ItemOperationType.kFor) {
+                    //如果for运行标志位被外部break置为了false，那么也要停止运行
+                    if (!_linkDataDictinary.TryGetValue("[" + taskNode.FlowName + "].[" + taskNode.ItemName + "]", out TaskNode dicForNodeBreak)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "算法引擎出错，该节点中更新参数失败");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    if (dicForNodeBreak.Data_OutputParams.Count != 8 || dicForNodeBreak.Data_OutputParams[7] == null || dicForNodeBreak.Data_OutputParams[7].ActualParam.GetType() != typeof(bool)) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "检测到" + taskNode.ItemName + "运行状态异常");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    dicForNodeBreak.Data_OutputParams[7].ActualParam = true;
+                    break;
+                }
+                else if (taskNode.OperationType == ItemOperationType.kWhile) {
+                    break;
+                }
+                else {
+                    taskNode = taskNode.Parent;
+                }
+            }
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kSuccess;
+            Log.Verbose(data.ItemName + "Success");
             return TaskNodeStatus.kSuccess;
+        }
+
+        /// <summary>
+        /// 注册单个数据到字典中
+        /// </summary>
+        /// <param name="node"></param>
+        private void RegisterLinkData(TaskNode node) {
+            _linkDataDictinary.TryAdd("[" + node.FlowName + "].[" + node.ItemName + "]", node);
         }
 
         /// <summary>
         /// 总结全局输出数据到字典中
         /// </summary>
-        private void SummarizeLinkData(List<FlowNode> processData) {
+        private void SummarizeLinkDatas(List<FlowNode> processData) {
             //前序遍历树，遍历到目标节点时返回
             Action<TaskNode> action_PreorderTraversal = null;
             action_PreorderTraversal = (TaskNode node) => {
@@ -1518,17 +2344,54 @@ namespace LowCodePlatform.Engine
         }
 
         /// <summary>
-        /// 根据表达式解析出结果，全局检索
+        /// 根据表达式转化为可解析的字符串
         /// </summary>
         /// <returns></returns>
-        private object ObtainResultByExpression(string expression) {
+        private string ObtainResultByExpression(string flowName, string expression) {
             if (string.IsNullOrEmpty(expression)) { 
-                return null;
+                return string.Empty;
             }
 
+            // 正则表达式匹配形如 KDouble(数字.操作.数字.操作) 结构的模式
+            string patternLink = @"([a-zA-Z]+)\((\d+)\.([^\.\(]+)\.(\d+)\.([^\)]+)\)";
 
+            // 使用正则表达式匹配
+            MatchCollection matches = Regex.Matches(expression, patternLink);
 
-            return null;
+            string expressionValue = Regex.Replace(expression, patternLink, match => {
+                string globalStr = "[" + flowName + "].[" + match.Value + "]";
+                object obj = RetrieveDataByName(globalStr);
+                if (obj == null) {
+                    return "链接为空，非法链接";
+                }
+                else if (obj.GetType() == typeof(int)) {
+                    int actualInt = Convert.ToInt32(obj);
+                    return actualInt.ToString();
+                }
+                else if (obj.GetType() == typeof(float)) {
+                    float actualFloat = (float)obj;
+                    return actualFloat.ToString();
+                }
+                else if (obj.GetType() == typeof(double)) {
+                    double actualDouble = Convert.ToDouble(obj);
+                    return actualDouble.ToString();
+                }
+                else if (obj.GetType() == typeof(string)) {
+                    string actualString = obj as string;
+                    return actualString;
+                }
+                else if (obj.GetType() == typeof(bool)) {
+                    bool actualBool = Convert.ToBoolean(obj);
+                    return actualBool.ToString();
+                }
+                return "else if节点的输入参数表达式暂时只支持int/float/double/string/bool";
+            });
+
+            // 使用正则表达式匹配 "true" 或 "false"，忽略大小写
+            string patternBool = @"\b(true|false)\b";
+            expressionValue = Regex.Replace(expressionValue, patternBool, match => match.Value.ToLower(), RegexOptions.IgnoreCase);
+
+            return expressionValue;
         }
 
         public object AcceptMessage(CommunicationCenterMessage message) {
@@ -1536,13 +2399,13 @@ namespace LowCodePlatform.Engine
                 return null;
             }
             else if (message.Function == "ProcessRunOnce" && message.Content is ValueTuple<List<FlowNode>, List<SubViewPluginBase>, List<ResourceOptionData>> params_ProcessRunOnce) {
-                SummarizeLinkData(params_ProcessRunOnce.Item1);
+                SummarizeLinkDatas(params_ProcessRunOnce.Item1);
                 SummarizeSubView(params_ProcessRunOnce.Item2);
                 SummarizeGlobalRes(params_ProcessRunOnce.Item3);
                 ProcessRunOnce(params_ProcessRunOnce.Item1);
             }
             else if (message.Function == "ProcessRunLoop" && message.Content is ValueTuple<List<FlowNode>, List<SubViewPluginBase>, List<ResourceOptionData>> params_ProcessRunLoop) {
-                SummarizeLinkData(params_ProcessRunLoop.Item1);
+                SummarizeLinkDatas(params_ProcessRunLoop.Item1);
                 SummarizeSubView(params_ProcessRunLoop.Item2);
                 SummarizeGlobalRes(params_ProcessRunLoop.Item3);
                 ProcessRunLoop(params_ProcessRunLoop.Item1);
@@ -1551,13 +2414,13 @@ namespace LowCodePlatform.Engine
                 ProcessRunStop();
             }
             else if (message.Function == "FlowRunOnce" && message.Content is ValueTuple<FlowNode, List<FlowNode>, List<SubViewPluginBase>, List<ResourceOptionData>> params_FlowRunOnce) {
-                SummarizeLinkData(params_FlowRunOnce.Item2);
+                SummarizeLinkDatas(params_FlowRunOnce.Item2);
                 SummarizeSubView(params_FlowRunOnce.Item3);
                 SummarizeGlobalRes(params_FlowRunOnce.Item4);
                 Task task = FlowRunOnce(params_FlowRunOnce.Item1);
             }
             else if (message.Function == "FlowRunLoop" && message.Content is ValueTuple<FlowNode, List<FlowNode>, List<SubViewPluginBase>, List<ResourceOptionData>> params_FlowRunLoop) {
-                SummarizeLinkData(params_FlowRunLoop.Item2);
+                SummarizeLinkDatas(params_FlowRunLoop.Item2);
                 SummarizeSubView(params_FlowRunLoop.Item3);
                 SummarizeGlobalRes(params_FlowRunLoop.Item4);
                 Task task = FlowRunLoop(params_FlowRunLoop.Item1);
@@ -1566,7 +2429,7 @@ namespace LowCodePlatform.Engine
                 FlowRunStop(params_FlowRunStop);
             }
             else if (message.Function == "NodeRunOnce" && message.Content is ValueTuple<TaskNode, List<FlowNode>, List<SubViewPluginBase>, List<ResourceOptionData>> params_NodeRunOnce) {
-                SummarizeLinkData(params_NodeRunOnce.Item2);
+                SummarizeLinkDatas(params_NodeRunOnce.Item2);
                 SummarizeSubView(params_NodeRunOnce.Item3);
                 SummarizeGlobalRes(params_NodeRunOnce.Item4);
                 Task task = NodeRunOnce(params_NodeRunOnce.Item1);

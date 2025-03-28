@@ -72,10 +72,10 @@ namespace LowCodePlatform.View
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "if", Tag = ItemOperationType.kIf });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else if", Tag = ItemOperationType.kElseIf });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else", Tag = ItemOperationType.kElse });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "for", Tag = ItemOperationType.kFor });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "for", Tag = ItemOperationType.kFor });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "while", Tag = ItemOperationType.kWhile });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "break", Tag = ItemOperationType.kBreak });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "continue", Tag = ItemOperationType.kContinue });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "break", Tag = ItemOperationType.kBreak });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "continue", Tag = ItemOperationType.kContinue });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "串行执行", Tag = ItemOperationType.kSerial });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "并行执行", Tag = ItemOperationType.kParallel });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "停止运行当前流程", Tag = ItemOperationType.kStopFlow });

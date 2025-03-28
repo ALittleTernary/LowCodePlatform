@@ -97,6 +97,11 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
                 ActualParam = _outputParams01,
                 Description = "四则运算输出结果"
             });
+            outputParams.Add(new TaskOperationOutputParams() {
+                ParamName = "string结果",
+                ActualParam = _outputParams01.ToString(),
+                Description = "四则运算输出结果"
+            });
 
             return TaskNodeStatus.kSuccess;
         }

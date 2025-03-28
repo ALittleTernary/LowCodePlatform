@@ -87,9 +87,13 @@
       <DependentUpon>TaskView_BlobAnalysis.xaml</DependentUpon>
     </Compile>
     <Compile Include="Plugin\Task_Control\TaskOperation_ElseIf.cs" />
+    <Compile Include="Plugin\Task_Control\TaskOperation_For.cs" />
     <Compile Include="Plugin\Task_Control\TaskOperation_If.cs" />
     <Compile Include="Plugin\Task_Control\TaskView_ElseIf.xaml.cs">
       <DependentUpon>TaskView_ElseIf.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_Control\TaskView_For.xaml.cs">
+      <DependentUpon>TaskView_For.xaml</DependentUpon>
     </Compile>
     <Compile Include="Plugin\Task_Control\TaskView_If.xaml.cs">
       <DependentUpon>TaskView_If.xaml</DependentUpon>
@@ -203,6 +207,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Plugin\Task_Control\TaskView_ElseIf.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Plugin\Task_Control\TaskView_For.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -114,12 +114,18 @@ namespace LowCodePlatform.Plugin.Base
         }
 
         private void InitControlPlugin() {
+            //if
             TaskView_If taskViewIf = new TaskView_If();
             taskViewIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewIf, new TaskOperation_If());//if
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewIf, new TaskOperation_If());
+            //else if
             TaskView_ElseIf taskViewElseIf = new TaskView_ElseIf();
             taskViewElseIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewElseIf, new TaskOperation_ElseIf());//else if
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewElseIf, new TaskOperation_ElseIf());
+            //for
+            TaskView_For taskViewFor = new TaskView_For();
+            taskViewFor.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewFor, new TaskOperation_For());
         }
 
         public void Dispose() {

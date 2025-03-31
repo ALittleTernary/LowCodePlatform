@@ -242,7 +242,10 @@ namespace LowCodePlatform.Plugin.Task_Control
                 //遍历所有输出
                 for (int i = 0; i < node.Data_OutputParams.Count; i++) {
                     TaskOperationOutputParams outputParam = node.Data_OutputParams[i];
-                    if (outputParam.ActualParam.GetType() == typeof(int)) {
+                    if (!outputParam.LinkVisual) { 
+                        continue;
+                    }
+                    else if (outputParam.ActualParam.GetType() == typeof(int)) {
                         datas.Add(new LinkData() {
                             DataType = LinkDataType.kInt.ToString(),
                             DataName = i + "." + outputParam.ParamName,

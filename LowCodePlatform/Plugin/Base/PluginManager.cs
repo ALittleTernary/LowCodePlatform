@@ -126,6 +126,10 @@ namespace LowCodePlatform.Plugin.Base
             TaskView_For taskViewFor = new TaskView_For();
             taskViewFor.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
             AddTaskPlugin(TaskPluginType.kControlStatement, taskViewFor, new TaskOperation_For());
+            //while
+            TaskView_While taskViewWhile = new TaskView_While();
+            taskViewWhile.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
+            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewWhile, new TaskOperation_While());
         }
 
         public void Dispose() {

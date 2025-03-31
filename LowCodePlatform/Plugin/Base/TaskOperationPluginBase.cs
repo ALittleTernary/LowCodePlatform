@@ -66,6 +66,11 @@ namespace LowCodePlatform.Plugin.Base
         public object ActualParam = null;
 
         /// <summary>
+        /// 是否允许外部可视链接,true为外部链接可视，false为外部链接不可视
+        /// </summary>
+        public bool LinkVisual { set; get; } = true;
+
+        /// <summary>
         /// 输出参数的注释描述，可以不实现，因为应该不会用到
         /// </summary>
         public string Description { set; get; } = string.Empty;
@@ -74,6 +79,7 @@ namespace LowCodePlatform.Plugin.Base
             TaskOperationOutputParams clone = new TaskOperationOutputParams();
             clone.ParamName = ParamName;
             clone.ActualParam = ActualParam;
+            clone.LinkVisual = LinkVisual;
             clone.Description = Description;
             return clone;
         }
@@ -130,6 +136,7 @@ namespace LowCodePlatform.Plugin.Base
                 json["ActualParam_Type"] = "unknownParams";
                 json["ActualParam_Value"] = "DontSaveTypeValues";
             }
+            json["LinkVisual"] = LinkVisual;
             json["Description"] = Description;
             return json.ToString();
         }
@@ -181,6 +188,7 @@ namespace LowCodePlatform.Plugin.Base
             else {
                 ActualParam = json["ActualParam_Value"].ToString();
             }
+            LinkVisual = ((bool)json["LinkVisual"]);
             Description = json["Description"].ToString();
         }
     }

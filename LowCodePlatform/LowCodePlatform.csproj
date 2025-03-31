@@ -89,6 +89,7 @@
     <Compile Include="Plugin\Task_Control\TaskOperation_ElseIf.cs" />
     <Compile Include="Plugin\Task_Control\TaskOperation_For.cs" />
     <Compile Include="Plugin\Task_Control\TaskOperation_If.cs" />
+    <Compile Include="Plugin\Task_Control\TaskOperation_While.cs" />
     <Compile Include="Plugin\Task_Control\TaskView_ElseIf.xaml.cs">
       <DependentUpon>TaskView_ElseIf.xaml</DependentUpon>
     </Compile>
@@ -97,6 +98,9 @@
     </Compile>
     <Compile Include="Plugin\Task_Control\TaskView_If.xaml.cs">
       <DependentUpon>TaskView_If.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_Control\TaskView_While.xaml.cs">
+      <DependentUpon>TaskView_While.xaml</DependentUpon>
     </Compile>
     <Compile Include="Plugin\Task_DataCompare\TaskOperation_DataCompare.cs" />
     <Compile Include="Plugin\Task_DataCompare\TaskView_DataCompare.xaml.cs">
@@ -109,6 +113,14 @@
     <Compile Include="Plugin\Task_LineChart\TaskOperation_LineChart.cs" />
     <Compile Include="Plugin\Task_LineChart\TaskView_LineChart.xaml.cs">
       <DependentUpon>TaskView_LineChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_LocalVariable\TaskOperation_CreateLocalVariable.cs" />
+    <Compile Include="Plugin\Task_LocalVariable\TaskOperation_ModifyLocalVariable.cs" />
+    <Compile Include="Plugin\Task_LocalVariable\TaskView_CreateLocalVariable.xaml.cs">
+      <DependentUpon>TaskView_CreateLocalVariable.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_LocalVariable\TaskView_ModifyLocalVariable.xaml.cs">
+      <DependentUpon>TaskView_ModifyLocalVariable.xaml</DependentUpon>
     </Compile>
     <Compile Include="Plugin\Task_Table\TaskOperation_Table.cs" />
     <Compile Include="Plugin\Task_Log\TaskOperation_Log.cs" />
@@ -218,6 +230,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Plugin\Task_Control\TaskView_While.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Plugin\Task_DataCompare\TaskView_DataCompare.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -227,6 +243,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Plugin\Task_LineChart\TaskView_LineChart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Plugin\Task_LocalVariable\TaskView_CreateLocalVariable.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Plugin\Task_LocalVariable\TaskView_ModifyLocalVariable.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -405,7 +429,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Plugin\Task_LoaclVariable\" />
     <Folder Include="Properties\" />
     <Folder Include="Solution\" />
   </ItemGroup>

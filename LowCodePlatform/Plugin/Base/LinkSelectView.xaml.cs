@@ -231,7 +231,10 @@ namespace LowCodePlatform.Plugin.Base
                 //遍历所有输出
                 for (int i = 0; i < node.Data_OutputParams.Count; i++) {
                     TaskOperationOutputParams outputParam = node.Data_OutputParams[i];
-                    if (outputParam.ActualParam.GetType() == typeof(int) && LinkDataType == LinkDataType.kInt) {
+                    if (!outputParam.LinkVisual) {
+                        continue;
+                    }
+                    else if (outputParam.ActualParam.GetType() == typeof(int) && LinkDataType == LinkDataType.kInt) {
                         dataGrid.Items.Add(new {String1 = LinkDataType.kInt.ToString(),String2 = i + "." +outputParam.ParamName,String3 = "" , String4 = outputParam.Description  });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<int>) && LinkDataType == LinkDataType.kListInt) {

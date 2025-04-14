@@ -398,8 +398,8 @@ namespace LowCodePlatform.Plugin.Task_BlobAnalysis
         }
 
         private void InitEvent() {
-            Button_Execute.Click += Event_Button_Execute;
-            Button_Confirm.Click += Event_Button_Confirm;
+            Button_Execute.Click += Event_Button_Execute_Click;
+            Button_Confirm.Click += Event_Button_Confirm_Click;
             Button_AddItem.Click += Event_Button_AddItem;
             Button_SubItem.Click += Event_Button_DeleteItem;
             Button_MoveUp.Click += Event_Button_MoveUpItem;
@@ -543,7 +543,7 @@ namespace LowCodePlatform.Plugin.Task_BlobAnalysis
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Confirm(object sender, RoutedEventArgs e) {
+        private void Event_Button_Confirm_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
             inputParams.Add(new TaskViewInputParams() {
                 ParamName = "输入图像",
@@ -658,7 +658,7 @@ namespace LowCodePlatform.Plugin.Task_BlobAnalysis
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Execute(object sender, RoutedEventArgs e) {
+        private void Event_Button_Execute_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
             inputParams.Add(new TaskViewInputParams() {
                 ParamName = "输入图像",

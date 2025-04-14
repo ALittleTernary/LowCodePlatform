@@ -23,7 +23,7 @@ namespace LowCodePlatform.Plugin.Task_Control
     /// <summary>
     /// TaskView_For.xaml 的交互逻辑
     /// </summary>
-    public partial class TaskView_For : System.Windows.Window, TaskViewPluginBase
+    public partial class TaskView_For : System.Windows.Window, LinkEditTaskViewPluginBase
     {
 
         /// <summary>

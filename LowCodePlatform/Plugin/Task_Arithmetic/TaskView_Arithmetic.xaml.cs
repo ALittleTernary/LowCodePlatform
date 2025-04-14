@@ -35,8 +35,8 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
         }
 
         private void InitEvent() {
-            Button_Confirm.Click += Event_Button_Confirm;
-            Button_Execute.Click += Event_Button_Execute;
+            Button_Confirm.Click += Event_Button_Confirm_Click;
+            Button_Execute.Click += Event_Button_Execute_Click;
         }
 
         public void ViewOperationDataUpdate(in List<TaskViewInputParams> inputParams, in List<TaskOperationOutputParams> outputParams) {
@@ -95,7 +95,7 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Confirm(object sender, RoutedEventArgs e) {
+        private void Event_Button_Confirm_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
 
             inputParams.Add(new TaskViewInputParams() {
@@ -123,7 +123,7 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Execute(object sender, RoutedEventArgs e) {
+        private void Event_Button_Execute_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
             inputParams.Add(new TaskViewInputParams() {
                 ParamName = "计算类型",

@@ -1,6 +1,7 @@
 ﻿using LowCodePlatform.Engine;
 using LowCodePlatform.Plugin.Res_Tcp;
 using LowCodePlatform.Plugin.Task_Control;
+using LowCodePlatform.Plugin.Task_LocalVariable;
 using LowCodePlatform.View;
 using LowCodePlatform.View.Base;
 using Microsoft.Win32;
@@ -107,29 +108,18 @@ namespace LowCodePlatform.Plugin.Base
         private RoutedEventHandler _taskSingleStepExecute = null;
 
         public PluginManager() {
-            InitControlPlugin();
+            RegisterLinkEditTaskPlugin();
             RegisterTaskPlugin();
             RegisterResourcePlugin();
             RegisterSubDockPlugin();
         }
 
-        private void InitControlPlugin() {
-            //if
-            TaskView_If taskViewIf = new TaskView_If();
-            taskViewIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewIf, new TaskOperation_If());
-            //else if
-            TaskView_ElseIf taskViewElseIf = new TaskView_ElseIf();
-            taskViewElseIf.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewElseIf, new TaskOperation_ElseIf());
-            //for
-            TaskView_For taskViewFor = new TaskView_For();
-            taskViewFor.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewFor, new TaskOperation_For());
-            //while
-            TaskView_While taskViewWhile = new TaskView_While();
-            taskViewWhile.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
-            AddTaskPlugin(TaskPluginType.kControlStatement, taskViewWhile, new TaskOperation_While());
+        private void RegisterLinkEditTaskPlugin() {
+            AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_If(), new TaskOperation_If());//if
+            AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_ElseIf(), new TaskOperation_ElseIf());//else if
+            AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_For(), new TaskOperation_For());//for
+            AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_While(), new TaskOperation_While());//while
+            AddLinkEditTaskPlugin(TaskPluginType.kVariableHandle, new TaskView_CreateLocalVariable(), new TaskOperation_CreateLocalVariable());//创建局部变量
         }
 
         public void Dispose() {
@@ -198,6 +188,55 @@ namespace LowCodePlatform.Plugin.Base
             viewWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             _taskPluginList.Add((taskType, viewInterface, operationInterface));
         }
+
+        /// <summary>
+        /// 添加支持链接编辑功能的task插件
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="operation"></param>
+        private void AddLinkEditTaskPlugin(TaskPluginType taskType, LinkEditTaskViewPluginBase viewInterface, TaskOperationPluginBase operationInterface) {
+            Window viewWindow = viewInterface as Window;
+            if (viewWindow == null) {
+                return;
+            }
+
+            Array enumValues = Enum.GetValues(typeof(LangaugeType));
+            foreach (var value in enumValues) {
+                //判断一下名字是否一样对应
+                LangaugeType langaugeType = (LangaugeType)value;
+                string viewName = viewInterface.ViewUniqueName(langaugeType);
+                string operationName = operationInterface.OperationUniqueName(langaugeType);
+                if (viewName != operationName) {
+                    return;
+                }
+                //判断一下名字是否重复
+                foreach (var item in _taskPluginList) {
+                    string currentViewTaskName = item.Item2.ViewUniqueName(langaugeType);
+                    if (currentViewTaskName == viewName) {
+                        //名字重复了
+                        return;
+                    }
+                }
+            }
+
+            //把关闭改为隐藏
+            viewWindow.Closing += (s, e) => {
+                if (_isClosing) {
+                    return;
+                }
+                e.Cancel = true;
+                viewWindow.Hide();
+            };
+            viewInterface.SetConfirmClickCallback(TaskViewClickConfirm);
+            viewInterface.SetExecuteClickCallback(TaskViewClickExecute);
+            viewInterface.SetLinkClickCallback(TaskViewClickLink);
+            viewInterface.SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes);
+
+            //界面点开则是中心显示
+            viewWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            _taskPluginList.Add((taskType, viewInterface, operationInterface));
+        }
+
 
         /// <summary>
         /// 从插件管理器获取所有task插件名，选项区使用，提供给用户哪些task可以使用

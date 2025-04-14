@@ -231,4 +231,19 @@ namespace LowCodePlatform.Plugin.Base
         /// </summary>
         bool EngineIsRunning { get; set; }
     }
+
+    public delegate string ObtainResultByExpression(string expression);
+
+    /// <summary>
+    /// 给需要用链接编辑功能的插件使用
+    /// </summary>
+    public interface LinkEditTaskOperationPluginBase : TaskOperationPluginBase
+    {
+        /// <summary>
+        /// 解析表达式
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        void SetObtainResultByExpressionCallback(ObtainResultByExpression cb);
+    }
 }

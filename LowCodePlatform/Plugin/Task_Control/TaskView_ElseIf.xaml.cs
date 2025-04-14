@@ -23,7 +23,7 @@ namespace LowCodePlatform.Plugin.Task_Control
     /// <summary>
     /// TaskView_ElseIf.xaml 的交互逻辑
     /// </summary>
-    public partial class TaskView_ElseIf : System.Windows.Window, TaskViewPluginBase
+    public partial class TaskView_ElseIf : System.Windows.Window, LinkEditTaskViewPluginBase
     {
         /// <summary>
         /// 借用插件管理器的发送接口，能与大群通讯

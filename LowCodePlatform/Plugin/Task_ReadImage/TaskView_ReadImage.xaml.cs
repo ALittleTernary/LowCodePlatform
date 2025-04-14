@@ -45,8 +45,8 @@ namespace LowCodePlatform.Plugin.Task_ReadImage
         }
 
         public void InitEvent() {
-            Button_Execute.Click += Event_Button_Execute;
-            Button_Confirm.Click += Event_Button_Confirm;
+            Button_Execute.Click += Event_Button_Execute_Click;
+            Button_Confirm.Click += Event_Button_Confirm_Click;
             Button_SingleImageOpen.Click += Event_Button_FindSingleImagePath;
             Button_ImageFolderOpen.Click += Event_Button_FindImageFolderPath;
 
@@ -70,7 +70,7 @@ namespace LowCodePlatform.Plugin.Task_ReadImage
             }
             // 获取选中的文件路径
             TextBox_SingleImagePath.Text = openFileDialog.FileName;
-            Event_Button_Execute(null, null);
+            Event_Button_Execute_Click(null, null);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace LowCodePlatform.Plugin.Task_ReadImage
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Confirm(object sender, RoutedEventArgs e) {
+        private void Event_Button_Confirm_Click(object sender, RoutedEventArgs e) {
             Func<List<string>> func_SummarizeFolderImagePaths = () => {
                 List<string> pathList = new List<string>();
                 foreach (var item in ListView_ImageFloderShow.Items) {
@@ -168,7 +168,7 @@ namespace LowCodePlatform.Plugin.Task_ReadImage
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Execute(object sender, RoutedEventArgs e) {
+        private void Event_Button_Execute_Click(object sender, RoutedEventArgs e) {
             Func<List<string>> func_SummarizeFolderImagePaths = () => {
                 List<string> pathList = new List<string>();
                 foreach (var item in ListView_ImageFloderShow.Items) {

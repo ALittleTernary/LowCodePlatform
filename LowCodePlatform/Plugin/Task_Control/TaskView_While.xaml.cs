@@ -23,7 +23,7 @@ namespace LowCodePlatform.Plugin.Task_Control
     /// <summary>
     /// TaskView_While.xaml 的交互逻辑
     /// </summary>
-    public partial class TaskView_While : System.Windows.Window, TaskViewPluginBase
+    public partial class TaskView_While : System.Windows.Window, LinkEditTaskViewPluginBase
     {
 
         /// <summary>

@@ -413,8 +413,10 @@ namespace LowCodePlatform.Engine
             Task task = new Task(() => {
                 try {
                     bool status = SwitchToCorrectNodeOperation(data);
-                    //更新数据到界面存储，单步执行需要这个，其他流程、工程执行不需要
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { data.TaskView.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams); }));
+                    if (status) {
+                        //更新数据到界面存储，单步执行需要这个，其他流程、工程执行不需要
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => { data.TaskView.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams); }));
+                    }
                 }
                 finally {
                     //线程字典移除当前线程，因为当前线程结束了
@@ -697,7 +699,7 @@ namespace LowCodePlatform.Engine
                     break;
             }
             //停止流程
-            if (node.NodeStatus == TaskNodeStatus.kFlowStop) {
+            if (node.NodeStatus == TaskNodeStatus.kFlowStop || node.NodeStatus == TaskNodeStatus.kFailure) {
                 return false;
             }
             return true;
@@ -753,6 +755,12 @@ namespace LowCodePlatform.Engine
                 else {
                     item.ActualParam = item.UserParam;
                 }
+            }
+
+            //如果是需要编辑表达式的，就需要设置给回调函数
+            LinkEditTaskOperationPluginBase linkEditOperation = data.TaskOperation as LinkEditTaskOperationPluginBase;
+            if (linkEditOperation != null) {
+                linkEditOperation.SetObtainResultByExpressionCallback((string expression) => { return ObtainResultByExpression(data.FlowName, expression); });
             }
 
             TaskNodeStatus startStatus = data.TaskOperation.Start(data.Data_InputParams);

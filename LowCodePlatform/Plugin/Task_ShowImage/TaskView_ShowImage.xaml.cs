@@ -32,8 +32,8 @@ namespace LowCodePlatform.Plugin.Task_ShowImage
         /// </summary>
         public TaskView_ShowImage() {
             InitializeComponent();
-            Button_Confirm.Click += Event_Button_Confirm;
-            Button_Execute.Click += Event_Button_Execute;
+            Button_Confirm.Click += Event_Button_Confirm_Click;
+            Button_Execute.Click += Event_Button_Execute_Click;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace LowCodePlatform.Plugin.Task_ShowImage
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Confirm(object sender, RoutedEventArgs e) {
+        private void Event_Button_Confirm_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
             inputParams.Add(new TaskViewInputParams() {
                 ParamName = "界面链接",
@@ -66,7 +66,7 @@ namespace LowCodePlatform.Plugin.Task_ShowImage
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Event_Button_Execute(object sender, RoutedEventArgs e) {
+        private void Event_Button_Execute_Click(object sender, RoutedEventArgs e) {
             List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
             inputParams.Add(new TaskViewInputParams() {
                 ParamName = "界面链接",

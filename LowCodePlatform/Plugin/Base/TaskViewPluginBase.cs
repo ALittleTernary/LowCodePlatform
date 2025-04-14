@@ -39,7 +39,6 @@ namespace LowCodePlatform.Plugin.Base
         kObject = 100,
     }
 
-    
 
     public class TaskViewInputParams
     {
@@ -278,5 +277,16 @@ namespace LowCodePlatform.Plugin.Base
         /// </summary>
         /// <param name="type"></param>
         void SwitchLanguage(LangaugeType type);
+    }
+
+    /// <summary>
+    /// 链接编辑任务界面插件基础的基类
+    /// </summary>
+    public interface LinkEditTaskViewPluginBase : TaskViewPluginBase {
+        /// <summary>
+        /// 总结当前节点之前数据
+        /// </summary>
+        /// <param name="cb"></param>
+        void SetSummarizeBeforeNodesCallback(SummarizeBeforeNodes cb);
     }
 }

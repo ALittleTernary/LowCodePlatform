@@ -1186,6 +1186,7 @@ namespace LowCodePlatform.View
                 node.ItemView = custom;//item指针拿到，用于给算法引擎更新item的时间和运行状态
                 node.TaskView = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskViewInterfaceByName", custom.ItemName)) as TaskViewPluginBase;//editView指针拿到，用于给算法引擎更新editView相关参数
                 node.TaskOperation = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskOperationInterfaceByName", custom.ItemName)) as TaskOperationPluginBase;//operator指针深拷贝拿到，用于运算
+                node.TaskOperation.EngineIsRunning = true;//总结数据时，将该值置为运行运行
 
                 //父亲节点
                 node.Parent = parent;

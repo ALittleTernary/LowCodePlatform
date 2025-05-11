@@ -296,6 +296,9 @@ namespace LowCodePlatform.Engine
             foreach (var item in _threadDictinary) {
                 _threadDictinary.TryUpdate(item.Key, false, true);
             }
+            foreach (var item in _linkDataDictinary) {
+                item.Value.TaskOperation.EngineIsRunning = false;
+            } 
             return true;
         }
 
@@ -431,6 +434,9 @@ namespace LowCodePlatform.Engine
         /// <returns></returns>
         public bool FlowRunStop(string name) {
             _threadDictinary.TryUpdate(name, false, true);
+            foreach (var item in _linkDataDictinary) {
+                item.Value.TaskOperation.EngineIsRunning = false;
+            }
             return true;
         }
 

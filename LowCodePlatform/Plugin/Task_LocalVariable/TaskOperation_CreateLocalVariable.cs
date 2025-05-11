@@ -18,6 +18,8 @@ namespace LowCodePlatform.Plugin.Task_LocalVariable
 
         private ObtainResultByExpression _obtainResultByExpression = null;
 
+        private UpdateLinkEditByExpression _updateLinkEditByExpression = null;
+
         private List<VariableData> _variableDatas = new List<VariableData>();
 
         private List<TaskOperationOutputParams> _outputParams = new List<TaskOperationOutputParams>();
@@ -79,7 +81,7 @@ namespace LowCodePlatform.Plugin.Task_LocalVariable
                     var nCalcExpression = new NCalc.Expression(data.VariableExpression);
                     nCalcResult = nCalcExpression.Evaluate();
                 }
-                catch (ArgumentException) {
+                catch (ArgumentException ex) {
                     Log.Error("解析表达式失败:" + data.VariableExpression);
                     nCalcResult = null;
                 }
@@ -163,6 +165,11 @@ namespace LowCodePlatform.Plugin.Task_LocalVariable
             _obtainResultByExpression = cb;
         }
 
-
+        public void SetUpdateLinkEditByExpressCallback(UpdateLinkEditByExpression cb) {
+            if (cb == null) { 
+                return ;
+            }
+            _updateLinkEditByExpression = cb;
+        }
     }
 }

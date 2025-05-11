@@ -84,25 +84,30 @@ namespace LowCodePlatform.View.Base
         /// </summary>
         kParallel = 10,
         /// <summary>
+        /// 返回
+        /// 禁止拥有子项，并且禁止打开编辑界面
+        /// </summary>
+        kReturn = 11,
+        /// <summary>
         /// 停止运行当前流程
         /// 禁止拥有子项，并且禁止打开编辑界面
         /// </summary>
-        kStopFlow = 11,
+        kStopFlow = 12,
         /// <summary>
         /// 重新运行当前流程
         /// 禁止拥有子项，并且禁止打开编辑界面
         /// </summary>
-        kReRunFlow = 12,
+        kReRunFlow = 13,
         /// <summary>
         /// 停止运行当前所有流程/整个工程
         /// 禁止拥有子项，并且禁止打开编辑界面
         /// </summary>
-        kStopProcess = 13,
+        kStopProcess = 14,
         /// <summary>
         /// 重新运行当前所有流程/整个工程
         /// 禁止拥有子项，并且禁止打开编辑界面
         /// </summary>
-        kReRunProcess = 14,
+        kReRunProcess = 15,
     }
 
     /// <summary>
@@ -146,6 +151,7 @@ namespace LowCodePlatform.View.Base
             {TaskNodeStatus.kNone, "空置" },
             {TaskNodeStatus.kSuccess, "成功" },
             {TaskNodeStatus.kFailure, "失败" },
+            {TaskNodeStatus.kReturn, "返回" },
             //{TaskNodeStatus.kProcessStop, "停止" },
             //{TaskNodeStatus.kProcessRerun, "重跑" },
             {TaskNodeStatus.kFlowStop, "停止" },

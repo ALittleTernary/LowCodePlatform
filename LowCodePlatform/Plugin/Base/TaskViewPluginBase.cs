@@ -34,6 +34,10 @@ namespace LowCodePlatform.Plugin.Base
         kView = 15,
         kResource = 16,
         /// <summary>
+        /// 变量类型
+        /// </summary>
+        kVariable = 17,
+        /// <summary>
         /// 对象类型
         /// </summary>
         kObject = 100,

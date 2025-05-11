@@ -120,6 +120,7 @@ namespace LowCodePlatform.Plugin.Base
             AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_For(), new TaskOperation_For());//for
             AddLinkEditTaskPlugin(TaskPluginType.kControlStatement, new TaskView_While(), new TaskOperation_While());//while
             AddLinkEditTaskPlugin(TaskPluginType.kVariableHandle, new TaskView_CreateLocalVariable(), new TaskOperation_CreateLocalVariable());//创建局部变量
+            AddLinkEditTaskPlugin(TaskPluginType.kVariableHandle, new TaskView_ModifyLocalVariable(), new TaskOperation_ModifyLocalVariable());//修改局部变量
         }
 
         public void Dispose() {

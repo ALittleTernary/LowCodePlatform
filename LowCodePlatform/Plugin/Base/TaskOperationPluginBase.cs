@@ -26,9 +26,15 @@ namespace LowCodePlatform.Plugin.Base
         /// </summary>
         kFailure = 2,
         /// <summary>
+        /// 提前结束当前节点的运行，不影响其他流程，不影响循环
+        /// </summary>
+        kReturn = 3,
+        /// <summary>
         /// 当前流程停止运行，其他流程还是正常跑的
         /// </summary>
-        kFlowStop = 3,
+        kFlowStop = 4,
+
+
         ///// <summary>
         ///// 当前流程重新运行，不影响其他流程
         ///// </summary>
@@ -63,7 +69,7 @@ namespace LowCodePlatform.Plugin.Base
         /// 实际的输出参数值
         /// 支持int/double/string/List<int>/List<double>/List<string>/Mat,不支持Mat的序列化和反序列化
         /// </summary>
-        public object ActualParam = null;
+        public object ActualParam { set; get; } = null;
 
         /// <summary>
         /// 是否允许外部可视链接,true为外部链接可视，false为外部链接不可视
@@ -234,6 +240,8 @@ namespace LowCodePlatform.Plugin.Base
 
     public delegate string ObtainResultByExpression(string expression);
 
+    public delegate bool UpdateLinkEditByExpression(TaskViewInputParams expression);
+
     /// <summary>
     /// 给需要用链接编辑功能的插件使用
     /// </summary>
@@ -245,5 +253,11 @@ namespace LowCodePlatform.Plugin.Base
         /// <param name="expression"></param>
         /// <returns></returns>
         void SetObtainResultByExpressionCallback(ObtainResultByExpression cb);
+
+        /// <summary>
+        /// 更新输入链接的值
+        /// 仅编辑局部变量需要改变新建局部变量的值
+        /// </summary>
+        void SetUpdateLinkEditByExpressCallback(UpdateLinkEditByExpression cb);
     }
 }

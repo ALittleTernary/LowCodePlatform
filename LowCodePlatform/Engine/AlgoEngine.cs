@@ -4,6 +4,7 @@ using LowCodePlatform.View;
 using LowCodePlatform.View.Base;
 using NCalc;
 using OpenCvSharp;
+using OpenCvSharp.Flann;
 using Serilog;
 using System;
 using System.Collections;
@@ -316,12 +317,26 @@ namespace LowCodePlatform.Engine
                         if (state_NoFindValue == false || state_Pause == false) { 
                             break;
                         }
-                        bool runStatus = SwitchToCorrectNodeOperation(child);
+                        TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(child);
 
                         //选择到正确节点执行没成功，跳出整个循环，停止执行
-                        if (!runStatus) {
+                        if (runStatus == TaskNodeStatus.kNone) {
                             break;
                         }
+                        else if (runStatus == TaskNodeStatus.kSuccess) { 
+                            //成功不做什么
+                        }
+                        else if (runStatus == TaskNodeStatus.kFailure) {
+                            break;
+                        }
+                        else if (runStatus == TaskNodeStatus.kReturn) {
+                            break;
+                        }
+                        else if (runStatus == TaskNodeStatus.kFlowStop) {
+                            break;
+                        }
+
+
                     }
                 }
                 finally {
@@ -361,12 +376,28 @@ namespace LowCodePlatform.Engine
                         if (state_NoFindValue == false || state_Pause == false) {
                             break;
                         }
-                        bool runStatus = SwitchToCorrectNodeOperation(flowData.Children[index]);
+                        TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(flowData.Children[index]);
 
                         //选择到正确节点执行没成功，跳出整个循环，停止执行
-                        if (!runStatus){
+                        if (runStatus == TaskNodeStatus.kNone) {
                             break;
                         }
+                        else if (runStatus == TaskNodeStatus.kSuccess) { 
+                        
+                        }
+                        else if (runStatus == TaskNodeStatus.kFailure) {
+                            break;
+                        }
+                        else if (runStatus == TaskNodeStatus.kReturn) {
+                            index = 0;
+                            Log.Verbose(flowData.Name + "执行完毕休眠20ms");
+                            Thread.Sleep(20);
+                            continue;
+                        }
+                        else if (runStatus == TaskNodeStatus.kFlowStop) {
+                            break;
+                        }
+
 
                         if (index < flowData.Children.Count - 1) {
                             index++;
@@ -412,8 +443,8 @@ namespace LowCodePlatform.Engine
             //从这里往前是主线程执行的，直到task.run
             Task task = new Task(() => {
                 try {
-                    bool status = SwitchToCorrectNodeOperation(data);
-                    if (status) {
+                    TaskNodeStatus status = SwitchToCorrectNodeOperation(data);
+                    if (status == TaskNodeStatus.kSuccess || status == TaskNodeStatus.kReturn) {
                         //更新数据到界面存储，单步执行需要这个，其他流程、工程执行不需要
                         Application.Current.Dispatcher.BeginInvoke(new Action(() => { data.TaskView.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams); }));
                     }
@@ -441,21 +472,21 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private bool SwitchToCorrectNodeOperation(TaskNode node) {
+        private TaskNodeStatus SwitchToCorrectNodeOperation(TaskNode node) {
             //当前线程点击了暂停
             bool state_NoFindValue = _threadDictinary.TryGetValue(node.FlowName, out bool state_Pause);
             if (state_NoFindValue == false || state_Pause == false) {
-                return false;
+                return TaskNodeStatus.kFlowStop;
             }
 
             //当前节点禁止运行
             if (!node.AllowRun) { 
-                return true;
+                return TaskNodeStatus.kSuccess;
             }
 
             switch (node.OperationType) {
                 case ItemOperationType.kNone:
-                    return false;
+                    return TaskNodeStatus.kFlowStop;
                 //break;
                 case ItemOperationType.kCommon:
                     //更新界面该节点为运行状态
@@ -474,7 +505,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicCommonNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicCommonNode.Data_OutputParams = node.Data_OutputParams;
                     dicCommonNode.Data_InputParams = node.Data_InputParams;
@@ -497,7 +528,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicIfNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicIfNode.Data_OutputParams = node.Data_OutputParams;
                     dicIfNode.Data_InputParams = node.Data_InputParams;
@@ -520,7 +551,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicElseIfNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicElseIfNode.Data_OutputParams = node.Data_OutputParams;
                     dicElseIfNode.Data_InputParams = node.Data_InputParams;
@@ -543,7 +574,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicElseNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicElseNode.Data_OutputParams = node.Data_OutputParams;
                     dicElseNode.Data_InputParams = node.Data_InputParams;
@@ -566,7 +597,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicForNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicForNode.Data_OutputParams = node.Data_OutputParams;
                     dicForNode.Data_InputParams = node.Data_InputParams;
@@ -589,7 +620,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicWhileNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicWhileNode.Data_OutputParams = node.Data_OutputParams;
                     dicWhileNode.Data_InputParams = node.Data_InputParams;
@@ -612,7 +643,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicBreakNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicBreakNode.Data_OutputParams = node.Data_OutputParams;
                     dicBreakNode.Data_InputParams = node.Data_InputParams;
@@ -635,7 +666,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicContinueNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicContinueNode.Data_OutputParams = node.Data_OutputParams;
                     dicContinueNode.Data_InputParams = node.Data_InputParams;
@@ -658,7 +689,7 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicSerialNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicSerialNode.Data_OutputParams = node.Data_OutputParams;
                     dicSerialNode.Data_InputParams = node.Data_InputParams;
@@ -681,11 +712,34 @@ namespace LowCodePlatform.Engine
                     //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
                     //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
                     if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicParallelNode)) {
-                        return false;
+                        return TaskNodeStatus.kFlowStop;
                     }
                     dicParallelNode.Data_OutputParams = node.Data_OutputParams;
                     dicParallelNode.Data_InputParams = node.Data_InputParams;
                     _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicParallelNode, dicParallelNode);
+                    break;
+                case ItemOperationType.kReturn:
+                    //更新界面该节点为运行状态
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.NodeStatus = TaskNodeStatus.kRunning;
+                    }));
+                    TaskNodeStatus returnStatus = RunReturnNode(node);
+                    //更新该界面节点运行结束参数
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                        node.ItemView.Time = node.Time;
+                        node.ItemView.NodeStatus = node.NodeStatus;
+                        node.ItemView.Data_InputParams = node.Data_InputParams;
+                        node.ItemView.Data_OutputParams = node.Data_OutputParams;
+                    }));
+
+                    //这里要将字典里的数据更新一下，非常非常奇怪，如果不更新则字典中数据未更新，后续就链接不到，这玩意是c#的什么特性吗？理论上来说dicNode和node指针是一样的才对
+                    //这里只手动更新输入输出，其他不重要的信息后续会自己同步更新？
+                    if (!_linkDataDictinary.TryGetValue("[" + node.FlowName + "].[" + node.ItemName + "]", out TaskNode dicReturnNode)) {
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    dicReturnNode.Data_OutputParams = node.Data_OutputParams;
+                    dicReturnNode.Data_InputParams = node.Data_InputParams;
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", dicReturnNode, dicReturnNode);
                     break;
                 case ItemOperationType.kStopFlow:
                     break;
@@ -698,11 +752,8 @@ namespace LowCodePlatform.Engine
                 default:
                     break;
             }
-            //停止流程
-            if (node.NodeStatus == TaskNodeStatus.kFlowStop || node.NodeStatus == TaskNodeStatus.kFailure) {
-                return false;
-            }
-            return true;
+
+            return node.NodeStatus;
         }
 
         /// <summary>
@@ -744,8 +795,7 @@ namespace LowCodePlatform.Engine
                     if (dataBindStr == null) {
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
-                    string linkLabel = "[" + data.FlowName + "].[" + dataBindStr + "]";
-                    object linkData = RetrieveDataByName(linkLabel);
+                    object linkData = RetrieveDataByName(data.FlowName, dataBindStr);
                     if (linkData == null) {
                         return TaskNodeStatus.kFlowStop;//算法引擎出错，整个工程停止
                     }
@@ -760,7 +810,10 @@ namespace LowCodePlatform.Engine
             //如果是需要编辑表达式的，就需要设置给回调函数
             LinkEditTaskOperationPluginBase linkEditOperation = data.TaskOperation as LinkEditTaskOperationPluginBase;
             if (linkEditOperation != null) {
-                linkEditOperation.SetObtainResultByExpressionCallback((string expression) => { return ObtainResultByExpression(data.FlowName, expression); });
+                linkEditOperation.SetObtainResultByExpressionCallback((string expression) => { 
+                    return ObtainResultByExpression(data.FlowName, expression); });
+                linkEditOperation.SetUpdateLinkEditByExpressCallback((TaskViewInputParams input) => {
+                    return UpdateLinkEditByExpress(data.FlowName, input); });
             }
 
             TaskNodeStatus startStatus = data.TaskOperation.Start(data.Data_InputParams);
@@ -844,14 +897,39 @@ namespace LowCodePlatform.Engine
                 if (state_NoFindValue == false || state_Pause == false) {
                     break;
                 }
-                bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                if (!runStatus) {
+                TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                if (runStatus == TaskNodeStatus.kNone) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
                     Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
                     return TaskNodeStatus.kFlowStop;
                 }
+                else if (runStatus == TaskNodeStatus.kSuccess) { 
+                
+                }
+                else if (runStatus == TaskNodeStatus.kFailure) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (runStatus == TaskNodeStatus.kFlowStop) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (runStatus == TaskNodeStatus.kReturn) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点请求返回");
+                    return TaskNodeStatus.kReturn;
+                }
+
                 //获取全局变量中的该for节点状态，看看是否有外部对齐状态进行改变
                 if (!_linkDataDictinary.TryGetValue("[" + data.FlowName + "].[" + data.ItemName + "]", out TaskNode dicSerialNode)) {
                     stopwatch.Stop();
@@ -905,22 +983,58 @@ namespace LowCodePlatform.Engine
 
 
             // 创建并启动多个任务
-            Task[] tasks = new Task[data.Children.Count];
+            Task<TaskNodeStatus>[] tasks = new Task<TaskNodeStatus>[data.Children.Count];
+
             for (int i = 0; i < data.Children.Count; i++) {
                 TaskNode childNode = data.Children[i];
-                tasks[i] = Task.Run(() => {
-                    //点击了暂停
+
+                Func<TaskNodeStatus> func_task = () => {
                     bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
                     if (state_NoFindValue == false || state_Pause == false) {
-                        return;
+                        return TaskNodeStatus.kFlowStop;
                     }
-                    SwitchToCorrectNodeOperation(childNode);
-                    ;
-                });
+                    TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                    return runStatus;
+                };
+                tasks[i] = Task.Run(func_task);
             }
 
             // 等待所有任务完成
             Task.WhenAll(tasks).Wait();
+
+            for (int i = 0; i < tasks.Count(); i++) {
+                if (tasks[i].Result == TaskNodeStatus.kNone) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "遇到意外的情况，有子流程执行结果为空");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (tasks[i].Result == TaskNodeStatus.kSuccess) {
+
+                }
+                else if (tasks[i].Result == TaskNodeStatus.kFailure) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    Log.Verbose(data.ItemName + "子节点执行失败");
+                    return TaskNodeStatus.kFailure;
+                }
+                else if (tasks[i].Result == TaskNodeStatus.kReturn) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kReturn;
+                    Log.Verbose(data.ItemName + "子节点请求返回");
+                    return TaskNodeStatus.kReturn;
+                }
+                else if (tasks[i].Result == TaskNodeStatus.kFlowStop) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "遇到意外的情况，有子流程执行结果为空");
+                    return TaskNodeStatus.kFlowStop;
+                }
+            }
 
             stopwatch.Stop();
             data.Time = stopwatch.ElapsedMilliseconds.ToString();
@@ -1058,8 +1172,32 @@ namespace LowCodePlatform.Engine
                 if (state_NoFindValue == false || state_Pause == false) {
                     break;
                 }
-                bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                if (!runStatus) {
+                TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                if (runStatus == TaskNodeStatus.kNone) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                }
+                else if (runStatus == TaskNodeStatus.kFailure) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFailure;
+                }
+                else if (runStatus == TaskNodeStatus.kReturn) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kReturn;
+                    Log.Verbose(data.ItemName + "子节点请求返回");
+                    return TaskNodeStatus.kReturn;
+                }
+                else if (runStatus == TaskNodeStatus.kFlowStop) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
@@ -1326,8 +1464,32 @@ namespace LowCodePlatform.Engine
                 if (state_NoFindValue == false || state_Pause == false) {
                     break;
                 }
-                bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                if (!runStatus) {
+                TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                if (runStatus == TaskNodeStatus.kNone) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                }
+                else if (runStatus == TaskNodeStatus.kFailure) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFailure;
+                }
+                else if (runStatus == TaskNodeStatus.kReturn) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kReturn;
+                    Log.Verbose(data.ItemName + "子节点请求返回");
+                    return TaskNodeStatus.kReturn;
+                }
+                else if (runStatus == TaskNodeStatus.kFlowStop) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
@@ -1508,8 +1670,32 @@ namespace LowCodePlatform.Engine
                 if (state_NoFindValue == false || state_Pause == false) {
                     break;
                 }
-                bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                if (!runStatus) {
+                TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                if (runStatus == TaskNodeStatus.kNone) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFlowStop;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                }
+                else if (runStatus == TaskNodeStatus.kFailure) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kFailure;
+                    Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                    return TaskNodeStatus.kFailure;
+                }
+                else if (runStatus == TaskNodeStatus.kReturn) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = TaskNodeStatus.kReturn;
+                    Log.Verbose(data.ItemName + "子节点请求返回");
+                    return TaskNodeStatus.kReturn;
+                }
+                else if (runStatus == TaskNodeStatus.kFlowStop) {
                     stopwatch.Stop();
                     data.Time = stopwatch.ElapsedMilliseconds.ToString();
                     data.NodeStatus = TaskNodeStatus.kFlowStop;
@@ -1765,8 +1951,32 @@ namespace LowCodePlatform.Engine
                         break;
                     }
 
-                    bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                    if (!runStatus) {
+                    TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                    if (runStatus == TaskNodeStatus.kNone) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                    }
+                    else if (runStatus == TaskNodeStatus.kFailure) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFailure;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFailure;
+                    }
+                    else if (runStatus == TaskNodeStatus.kReturn) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kReturn;
+                        Log.Verbose(data.ItemName + "子节点请求返回");
+                        return TaskNodeStatus.kReturn;
+                    }
+                    else if (runStatus == TaskNodeStatus.kFlowStop) {
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
@@ -2330,8 +2540,32 @@ namespace LowCodePlatform.Engine
                         break;
                     }
 
-                    bool runStatus = SwitchToCorrectNodeOperation(childNode);
-                    if (!runStatus) {
+                    TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                    if (runStatus == TaskNodeStatus.kNone) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                    }
+                    else if (runStatus == TaskNodeStatus.kFailure) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFailure;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFailure;
+                    }
+                    else if (runStatus == TaskNodeStatus.kReturn) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kReturn;
+                        Log.Verbose(data.ItemName + "子节点请求返回");
+                        return TaskNodeStatus.kReturn;
+                    }
+                    else if (runStatus == TaskNodeStatus.kFlowStop) {
                         stopwatch.Stop();
                         data.Time = stopwatch.ElapsedMilliseconds.ToString();
                         data.NodeStatus = TaskNodeStatus.kFlowStop;
@@ -2872,6 +3106,33 @@ namespace LowCodePlatform.Engine
         }
 
         /// <summary>
+        /// 运行return节点
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private TaskNodeStatus RunReturnNode(TaskNode data) {
+            //计时开始
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            //先判断前面的是不是if，不是就停止流程
+            if (data == null || data.OperationType != ItemOperationType.kReturn) {
+                stopwatch.Stop();
+                data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "算法引擎出错，return输入节点为空或者执行类型不为return");
+                return TaskNodeStatus.kFlowStop;
+            }
+
+
+            stopwatch.Stop();
+            data.Time = stopwatch.ElapsedMilliseconds.ToString();
+            data.NodeStatus = TaskNodeStatus.kReturn;
+            Log.Verbose(data.ItemName + "Return");
+            return TaskNodeStatus.kReturn;
+        }
+
+        /// <summary>
         /// 总结全局输出数据到字典中
         /// </summary>
         private void SummarizeLinkDatas(List<FlowNode> processData) {
@@ -2931,7 +3192,9 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private object RetrieveDataByName(string inputLinkStr) {
+        private object RetrieveDataByName(string flowName, string linkEdit) {
+            string inputLinkStr = "[" + flowName + "].[" + linkEdit + "]";
+
             //[新建流程(0)].[KDouble(0.四则运算(1).2.double结果(2))]
             string pattern = @"\[(.*?)\]\.\[([^\(]+)\((.*?)\)\]";
             var match = Regex.Match(inputLinkStr, pattern);
@@ -3023,8 +3286,7 @@ namespace LowCodePlatform.Engine
             MatchCollection matches = Regex.Matches(expression, patternLink);
 
             string expressionValue = Regex.Replace(expression, patternLink, match => {
-                string globalStr = "[" + flowName + "].[" + match.Value + "]";
-                object obj = RetrieveDataByName(globalStr);
+                object obj = RetrieveDataByName(flowName, match.Value);
                 if (obj == null) {
                     return "链接为空，非法链接";
                 }
@@ -3056,6 +3318,70 @@ namespace LowCodePlatform.Engine
             expressionValue = Regex.Replace(expressionValue, patternBool, match => match.Value.ToLower(), RegexOptions.IgnoreCase);
 
             return expressionValue;
+        }
+
+        private bool UpdateLinkEditByExpress(string flowName, TaskViewInputParams input) {
+            if (!input.IsBind) {
+                return false;
+            }
+
+            string inputLinkStr = "[" + flowName + "].[" + input.UserParam + "]";
+
+            //[新建流程(0)].[KDouble(0.四则运算(1).2.double结果(2))]
+            string pattern = @"\[(.*?)\]\.\[([^\(]+)\((.*?)\)\]";
+            var match = Regex.Match(inputLinkStr, pattern);
+            if (!match.Success) {
+                return false;
+            }
+
+            // 提取第一部分 "新建流程(0)"
+            string part1 = match.Groups[1].Value;
+            // 提取第二部分 "KDouble" 
+            string part2 = match.Groups[2].Value;
+            // 提取括号内的内容 "0.四则运算(1).2.double结果(2)"
+            string innerContent = match.Groups[3].Value;
+            // 分割括号内的部分
+            string[] parts = innerContent.Split(new[] { '.' }, StringSplitOptions.None);
+
+            if (parts.Length == 4) {
+                string part3 = parts[0]; // "0"
+                string part4 = parts[1]; // "四则运算"
+                string part5 = parts[2]; // "2"
+                string part6 = parts[3]; // "double结果"
+
+
+                if (!int.TryParse(part3, out int nodeId)) {
+                    return false;
+                }
+                if (!int.TryParse(part5, out int paramId)) {
+                    return false;
+                }
+
+                string taskLinkStr = "[" + part1 + "].[" + part3 + "." + part4 + "]";//[新建流程].[0.四则运算]
+
+                if (!_linkDataDictinary.TryGetValue(taskLinkStr, out TaskNode node)) {
+                    return false;
+                }
+                for (int i = 0; i < node.Data_OutputParams.Count; i++) {
+                    if (i != paramId) {
+                        continue;
+                    }
+                    if (part6 != node.Data_OutputParams[i].ParamName) {
+                        continue;
+                    }
+
+                    node.Data_OutputParams[i].ActualParam = input.ActualParam;
+                    var viewDatas = node.ItemView.Data_OutputParams;
+                    viewDatas[i].ActualParam = input.ActualParam;
+                    node.ItemView.Data_OutputParams = viewDatas;
+
+                    _linkDataDictinary.TryUpdate("[" + node.FlowName + "].[" + node.ItemName + "]", node, node);
+                    return true;
+                }
+                return false;
+            }
+
+            return true;
         }
 
         public object AcceptMessage(CommunicationCenterMessage message) {

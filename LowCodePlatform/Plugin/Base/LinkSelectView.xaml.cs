@@ -228,49 +228,51 @@ namespace LowCodePlatform.Plugin.Base
                 //第四行
                 dataGrid.Columns.Add(new DataGridTextColumn { Header = "描述", Binding = new Binding("String4"), Width = new DataGridLength(1, DataGridLengthUnitType.Star)});
 
+                string itemName = node.ItemName.Split('.')[1];
+
                 //遍历所有输出
                 for (int i = 0; i < node.Data_OutputParams.Count; i++) {
                     TaskOperationOutputParams outputParam = node.Data_OutputParams[i];
                     if (!outputParam.LinkVisual) {
                         continue;
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(int) && LinkDataType == LinkDataType.kInt) {
-                        dataGrid.Items.Add(new {String1 = LinkDataType.kInt.ToString(),String2 = i + "." +outputParam.ParamName,String3 = "" , String4 = outputParam.Description  });
+                    else if (outputParam.ActualParam.GetType() == typeof(int) && (LinkDataType == LinkDataType.kInt || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kInt.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<int>) && LinkDataType == LinkDataType.kListInt) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<int>) && (LinkDataType == LinkDataType.kListInt || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
 
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(float) && LinkDataType == LinkDataType.kFloat) {
+                    else if (outputParam.ActualParam.GetType() == typeof(float) && (LinkDataType == LinkDataType.kFloat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kFloat.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<float>) && LinkDataType == LinkDataType.kListFloat) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<float>) && (LinkDataType == LinkDataType.kListFloat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
 
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(double) && LinkDataType == LinkDataType.kDouble) {
+                    else if (outputParam.ActualParam.GetType() == typeof(double) && (LinkDataType == LinkDataType.kDouble || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kDouble.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<double>) && LinkDataType == LinkDataType.kListDouble) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<double>) && (LinkDataType == LinkDataType.kListDouble || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kListDouble.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(string) && LinkDataType == LinkDataType.kString) {
+                    else if (outputParam.ActualParam.GetType() == typeof(string) && (LinkDataType == LinkDataType.kString || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kString.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<string>) && LinkDataType == LinkDataType.kListString) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<string>) && (LinkDataType == LinkDataType.kListString || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
 
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(bool) && LinkDataType == LinkDataType.kBool) {
+                    else if (outputParam.ActualParam.GetType() == typeof(bool) && (LinkDataType == LinkDataType.kBool || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kBool.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<bool>) && LinkDataType == LinkDataType.kListBool) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<bool>) && (LinkDataType == LinkDataType.kListBool || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
 
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(Mat) && LinkDataType == LinkDataType.kMat) {
+                    else if (outputParam.ActualParam.GetType() == typeof(Mat) && (LinkDataType == LinkDataType.kMat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kMat.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(List<Mat>) && LinkDataType == LinkDataType.kListMat) {
+                    else if (outputParam.ActualParam.GetType() == typeof(List<Mat>) && (LinkDataType == LinkDataType.kListMat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
 
                     }
-                    else if (outputParam.ActualParam.GetType() == typeof(Mat[]) && LinkDataType == LinkDataType.kRegion) {
+                    else if (outputParam.ActualParam.GetType() == typeof(Mat[]) && (LinkDataType == LinkDataType.kRegion || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kRegion.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     //其他类型，也就是object
@@ -426,10 +428,10 @@ namespace LowCodePlatform.Plugin.Base
                 return;
             }
             var type = selectedItem.GetType();
-            string String1 = type.GetProperty("String1")?.GetValue(selectedItem).ToString();
-            string String2 = type.GetProperty("String2")?.GetValue(selectedItem).ToString();
+            string String1 = type.GetProperty("String1")?.GetValue(selectedItem).ToString();//类型
+            string String2 = type.GetProperty("String2")?.GetValue(selectedItem).ToString();//资源名称
             string String3 = type.GetProperty("String3")?.GetValue(selectedItem).ToString();
-            string String4 = type.GetProperty("String4")?.GetValue(selectedItem).ToString();
+            string String4 = type.GetProperty("String4")?.GetValue(selectedItem).ToString();//描述
 
             TabItem contentItem = TabControl_Content.SelectedItem as TabItem;
             if (contentItem == null) {
@@ -440,46 +442,49 @@ namespace LowCodePlatform.Plugin.Base
                 case LinkDataType.kNone:
                     break;
                 case LinkDataType.kInt:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListInt:
                     break;
                 case LinkDataType.kFloat:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListFloat:
                     break;
                 case LinkDataType.kDouble:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListDouble:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kString:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListString:
                     break;
                 case LinkDataType.kBool:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListBool:
                     break;
                 case LinkDataType.kRegion:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListRegion:
                     break;
                 case LinkDataType.kMat:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListMat:
                     break;
                 case LinkDataType.kView:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kResource:
-                    LinkDataText = LinkDataType + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
+                    break;
+                case LinkDataType.kVariable:
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kObject:
                     break;

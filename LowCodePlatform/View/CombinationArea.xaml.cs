@@ -804,7 +804,7 @@ namespace LowCodePlatform.View
                     return;
                 }
                 //目标项禁止拥有子项的情况，常规处理
-                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess) {
+                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {
@@ -873,7 +873,7 @@ namespace LowCodePlatform.View
                 }
 
                 //目标项禁止拥有子项的情况，常规处理
-                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess) {
+                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {

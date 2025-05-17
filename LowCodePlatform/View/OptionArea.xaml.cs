@@ -63,8 +63,6 @@ namespace LowCodePlatform.View
 
             //变量处理
             _treeViewItem_VariableHandle = new TreeViewItem() { Header = "变量处理" , ItemContainerStyle = (Style)FindResource("StretchTreeViewItemStyle") };
-            //_treeViewItem_VariableHandle.Items.Add(new TreeViewItem() { Header = "新建局部变量", Tag = ItemOperationType.kCommon });
-            //_treeViewItem_VariableHandle.Items.Add(new TreeViewItem() { Header = "修改变量数据", Tag = ItemOperationType.kCommon });
             TreeView_Option.Items.Add(_treeViewItem_VariableHandle);
 
             //控制语句
@@ -73,7 +71,7 @@ namespace LowCodePlatform.View
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else if", Tag = ItemOperationType.kElseIf });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "else", Tag = ItemOperationType.kElse });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "for", Tag = ItemOperationType.kFor });
-            //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "while", Tag = ItemOperationType.kWhile });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "while", Tag = ItemOperationType.kWhile });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "break", Tag = ItemOperationType.kBreak });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "continue", Tag = ItemOperationType.kContinue });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "串行执行", Tag = ItemOperationType.kSerial });

@@ -122,6 +122,10 @@
     <Compile Include="Plugin\Task_LocalVariable\TaskView_ModifyLocalVariable.xaml.cs">
       <DependentUpon>TaskView_ModifyLocalVariable.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Plugin\Task_Ping\TaskOperation_Ping.cs" />
+    <Compile Include="Plugin\Task_Ping\TaskView_Ping.xaml.cs">
+      <DependentUpon>TaskView_Ping.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Plugin\Task_Table\TaskOperation_Table.cs" />
     <Compile Include="Plugin\Task_Log\TaskOperation_Log.cs" />
     <Compile Include="Plugin\Task_Log\TaskView_Log.xaml.cs">
@@ -255,6 +259,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Plugin\Task_Log\TaskView_Log.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Plugin\Task_Ping\TaskView_Ping.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

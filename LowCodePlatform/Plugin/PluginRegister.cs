@@ -20,6 +20,7 @@ using LowCodePlatform.Plugin.Sub_LineChart;
 using LowCodePlatform.Plugin.Task_LineChart;
 using LowCodePlatform.Plugin.Task_DataCompare;
 using LowCodePlatform.Plugin.Task_Control;
+using LowCodePlatform.Plugin.Task_Ping;
 
 namespace LowCodePlatform.Plugin
 {
@@ -42,6 +43,7 @@ namespace LowCodePlatform.Plugin
             AddTaskPlugin(TaskPluginType.kDataDisplay, new TaskView_Table(), new TaskOperation_Table());//表格
             AddTaskPlugin(TaskPluginType.kDataDisplay, new TaskView_LineChart(), new TaskOperation_LineChart());//折线图
             AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_DataCompare(), new TaskOperation_DataCompare());//数据比较
+            AddTaskPlugin(TaskPluginType.kResourceObtain, new TaskView_Ping(), new TaskOperation_Ping());//Ping
         }
 
         /// <summary>

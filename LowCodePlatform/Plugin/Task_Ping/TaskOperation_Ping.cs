@@ -17,8 +17,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
 
         private int _timeOut = -1;
 
-        private int _frequency = -1;
-
         private bool _result = false;
 
         private List<string> _messages = new List<string>();
@@ -53,10 +51,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
                 return TaskNodeStatus.kFailure;
             }
             _timeOut = Convert.ToInt32(inputParams[1].ActualParam);
-            if (inputParams.Count < 3 || inputParams[2].ActualParam.GetType() != typeof(int)) {
-                return TaskNodeStatus.kFailure;
-            }
-            _frequency = Convert.ToInt32(inputParams[2].ActualParam);
 
             return TaskNodeStatus.kSuccess;
         }
@@ -65,7 +59,7 @@ namespace LowCodePlatform.Plugin.Task_Ping
             Ping pingSender = new Ping();
             _result = false;
             _messages.Clear();
-            for (int i = 0; i < _frequency; i++) {
+            while (EngineIsRunning) {
                 try {
                     // 发送Ping请求
                     PingReply reply = pingSender.Send(_ip, _timeOut);
@@ -75,6 +69,7 @@ namespace LowCodePlatform.Plugin.Task_Ping
                         _result = true;
                         _messages.Add("来自 " + reply.Address.ToString() + " 的回复: 字节=" + reply.Buffer.Length
                         + " 时间=" + reply.RoundtripTime + "ms TTL=" + reply.Options.Ttl);
+                        break;
                     }
                     else {
                         _messages.Add("Ping失败，状态: " + reply.Status);

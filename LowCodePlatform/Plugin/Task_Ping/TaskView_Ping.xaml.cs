@@ -47,11 +47,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
                     IsBind = LinkEdit_TimeOut.IsBind,
                     UserParam = LinkEdit_TimeOut.UserParam,
                 });
-                inputParams.Add(new TaskViewInputParams() {
-                    ParamName = "ping次数",
-                    IsBind = LinkEdit_Frequency.IsBind,
-                    UserParam = LinkEdit_Frequency.UserParam,
-                });
                 _confirmClick?.Invoke(inputParams);
             };
             Button_Execute.Click += (s, e) => {
@@ -65,11 +60,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
                     ParamName = "超时",
                     IsBind = LinkEdit_TimeOut.IsBind,
                     UserParam = LinkEdit_TimeOut.UserParam,
-                });
-                inputParams.Add(new TaskViewInputParams() {
-                    ParamName = "ping次数",
-                    IsBind = LinkEdit_Frequency.IsBind,
-                    UserParam = LinkEdit_Frequency.UserParam,
                 });
                 _executeClick?.Invoke(inputParams);
             };
@@ -96,13 +86,11 @@ namespace LowCodePlatform.Plugin.Task_Ping
             JObject json = JObject.Parse(str);
             LinkEdit_IP.JsonToView(json["LinkEdit_IP"].ToString());
             LinkEdit_TimeOut.JsonToView(json["LinkEdit_TimeOut"].ToString());
-            LinkEdit_Frequency.JsonToView(json["LinkEdit_Frequency"].ToString());
         }
 
         public void ResetView() {
             LinkEdit_IP.ResetView();
             LinkEdit_TimeOut.ResetView();
-            LinkEdit_Frequency.ResetView();
             ListView_Result.ItemsSource = new ObservableCollection<string>();
         }
 
@@ -110,7 +98,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
             JObject json = new JObject();
             json["LinkEdit_IP"] = LinkEdit_IP.ViewToJson();
             json["LinkEdit_TimeOut"] = LinkEdit_TimeOut.ViewToJson();
-            json["LinkEdit_Frequency"] = LinkEdit_Frequency.ViewToJson();
             return json.ToString();
         }
 

@@ -34,12 +34,6 @@
                              LinkContentType="kInt"
                              LinkLabelText="Ping超时(毫秒)"/>
 
-            <custom:LinkEdit x:Name="LinkEdit_Frequency" 
-                             Grid.Row="2" 
-                             ColumnLayout="kLabel1TextBox2"
-                             LinkContentType="kInt"
-                             LinkLabelText="Ping次数"/>
-            
             <TabControl Grid.Row="3">
                 <TabItem Header="结果">
                     <ListView x:Name="ListView_Result"/>

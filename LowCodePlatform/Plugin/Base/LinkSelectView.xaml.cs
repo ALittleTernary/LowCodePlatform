@@ -470,8 +470,6 @@ namespace LowCodePlatform.Plugin.Base
                 case LinkDataType.kRegion:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
-                case LinkDataType.kListRegion:
-                    break;
                 case LinkDataType.kMat:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;

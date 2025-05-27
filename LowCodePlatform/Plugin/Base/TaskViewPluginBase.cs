@@ -28,7 +28,10 @@ namespace LowCodePlatform.Plugin.Base
         kBool = 9,
         kListBool = 10,
         kRegion = 11,
-        kListRegion = 12,
+        ///// <summary>
+        ///// 只有region，没有listRegion
+        ///// </summary>
+        //kListRegion = 12,
         kMat = 13,
         kListMat = 14,
         kView = 15,

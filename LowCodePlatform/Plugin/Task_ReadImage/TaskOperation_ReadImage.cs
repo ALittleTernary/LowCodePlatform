@@ -1,6 +1,7 @@
 ﻿using LowCodePlatform.Plugin.Base;
 using LowCodePlatform.Plugin.Res_Camera;
 using OpenCvSharp;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,8 +64,17 @@ namespace LowCodePlatform.Plugin.Task_ReadImage
                 _folderNextIndex = 0;
             }
             if (_readImageType == ReadImageType.kReadFolder && _imageFolderImagePathList.Count > 0) {
+                int index = _folderNextIndex;
                 _folderNextIndex = _folderNextIndex % _imageFolderImagePathList.Count;
-                inputParams[4].UserParam = _folderNextIndex + 1;//直接修改输入参数，下次输入进来的参数就会改变，一般情况不要修改传入的参数
+                //直接修改输入参数，下次输入进来的参数就会改变，一般情况不要修改传入的参数
+                if (index >= _imageFolderImagePathList.Count) {
+                    inputParams[4].UserParam = 0;
+                    Log.Information("读取文件夹图片结束");
+                    return TaskNodeStatus.kFlowStop;
+                }
+                else {
+                    inputParams[4].UserParam = _folderNextIndex + 1;
+                }
             }
             if (_readImageType == ReadImageType.kReadCamera && inputParams.Count > 5 && inputParams[5].ActualParam.GetType() == typeof(ResOperation_USBCamera)) {
                 _USBCamera = inputParams[5].ActualParam as ResOperation_USBCamera;

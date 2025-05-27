@@ -21,6 +21,10 @@ using LowCodePlatform.Plugin.Task_LineChart;
 using LowCodePlatform.Plugin.Task_DataCompare;
 using LowCodePlatform.Plugin.Task_Control;
 using LowCodePlatform.Plugin.Task_Ping;
+using LowCodePlatform.Plugin.Task_TemplateMatch;
+using LowCodePlatform.Plugin.Task_ArraySplit;
+using LowCodePlatform.Plugin.Task_CharRecognize;
+using LowCodePlatform.Plugin.Task_DataSave;
 
 namespace LowCodePlatform.Plugin
 {
@@ -44,6 +48,10 @@ namespace LowCodePlatform.Plugin
             AddTaskPlugin(TaskPluginType.kDataDisplay, new TaskView_LineChart(), new TaskOperation_LineChart());//折线图
             AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_DataCompare(), new TaskOperation_DataCompare());//数据比较
             AddTaskPlugin(TaskPluginType.kResourceObtain, new TaskView_Ping(), new TaskOperation_Ping());//Ping
+            AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_TemplateMatch(), new TaskOperation_TemplateMatch());//模板匹配
+            AddTaskPlugin(TaskPluginType.kVariableHandle, new TaskView_ArraySplit(), new TaskOperation_ArraySplit());//数组拆分
+            AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_CharRecognize(), new TaskOperation_CharRecognize());//字符识别
+            AddTaskPlugin(TaskPluginType.kResourcePublic, new TaskView_TxtSave(), new TaskOperation_TxtSave());//txt存储
         }
 
         /// <summary>

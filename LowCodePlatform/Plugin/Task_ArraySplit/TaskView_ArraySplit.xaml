@@ -1,0 +1,65 @@
+﻿<Window x:Class="LowCodePlatform.Plugin.Task_ArraySplit.TaskView_ArraySplit"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Task_ArraySplit"
+             xmlns:custom="clr-namespace:LowCodePlatform.Plugin.Base"
+             mc:Ignorable="d" 
+             Height="450" Width="350">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="数组类型" Margin="5"/>
+            <ComboBox x:Name="ComboBox_ArrayType" Grid.Row="0" Grid.Column="1" Margin="5" VerticalContentAlignment ="Center">
+                <ComboBox.Items>
+                    <ComboBoxItem>kListString</ComboBoxItem>
+                    <ComboBoxItem>kRegion</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+
+            <custom:LinkEdit x:Name="LinkEdit_TargetArray" 
+                             Grid.Row="1" 
+                             Grid.Column="0" 
+                             Grid.ColumnSpan="2" 
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkContentType="kRegion"
+                             LinkLabelText="目标数组"/>
+
+            <custom:LinkEdit x:Name="LinkEdit_ArrayIndex" 
+                             Grid.Row="2" 
+                             Grid.Column="0" 
+                             Grid.ColumnSpan="2" 
+                             ColumnLayout="kLabel1TextBox2"
+                             LinkContentType="kInt"
+                             LinkLabelText="数组索引"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="Button_Execute" Grid.Column="1" Content="执行"  Margin="5,0,5,5" />
+            <Button x:Name="Button_Confirm" Grid.Column="2" Content="确定" Margin="5,0,5,5"/>
+        </Grid>
+    </Grid>
+</Window>

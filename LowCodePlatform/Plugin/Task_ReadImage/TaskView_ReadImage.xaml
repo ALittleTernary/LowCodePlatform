@@ -36,7 +36,7 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="图片路径" Margin="13,5,0,0" HorizontalAlignment="Left"/>
-                            <TextBox x:Name="TextBox_SingleImagePath" IsEnabled="False" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" Grid.ColumnSpan="2"/>
+                            <TextBox x:Name="TextBox_SingleImagePath" IsEnabled="False" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0"/>
                             <Button x:Name="Button_SingleImageOpen"  Grid.Row="0" Grid.Column="2" Content="打开" Margin="10,5,0,0" />
                         </Grid>
                     </TabItem>

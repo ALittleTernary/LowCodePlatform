@@ -108,6 +108,16 @@ namespace LowCodePlatform.View.Base
         /// 禁止拥有子项，并且禁止打开编辑界面
         /// </summary>
         kReRunProcess = 15,
+        /// <summary>
+        /// 原路线恢复，表示执行失败后恢复到记录点并继续原路线的执行
+        /// 禁止拥有子项，禁止拥有父项，并且禁止打开编辑界面
+        /// </summary>
+        kOriginalResurvey = 16,
+        /// <summary>
+        /// 切换路线恢复，表示执行失败后恢复到记录点并切换到新的路线执行
+        /// 拥有子项，禁止拥有父项，且禁止打开编辑界面
+        /// </summary>
+        kSwitchResurvey = 17,
     }
 
     /// <summary>

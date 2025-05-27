@@ -35,8 +35,49 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
         }
 
         private void InitEvent() {
-            Button_Confirm.Click += Event_Button_Confirm_Click;
-            Button_Execute.Click += Event_Button_Execute_Click;
+            Button_Confirm.Click += (s, e) => {
+                List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
+
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "计算类型",
+                    IsBind = false,
+                    UserParam = ComboBox_ArithmeticType.Text,
+                });
+
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "输入参数一",
+                    IsBind = LinkEdit_Param1.IsBind,
+                    UserParam = LinkEdit_Param1.UserParam,
+                });
+
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "输入参数二",
+                    IsBind = LinkEdit_Param2.IsBind,
+                    UserParam = LinkEdit_Param2.UserParam,
+                });
+                _confirmClick?.Invoke(inputParams);
+            };
+            Button_Execute.Click += (s, e) => {
+                List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "计算类型",
+                    IsBind = false,
+                    UserParam = ComboBox_ArithmeticType.Text,
+                });
+
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "输入参数一",
+                    IsBind = LinkEdit_Param1.IsBind,
+                    UserParam = LinkEdit_Param1.UserParam,
+                });
+
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "输入参数二",
+                    IsBind = LinkEdit_Param2.IsBind,
+                    UserParam = LinkEdit_Param2.UserParam,
+                });
+                _executeClick?.Invoke(inputParams);
+            };
         }
 
         public void ViewOperationDataUpdate(in List<TaskViewInputParams> inputParams, in List<TaskOperationOutputParams> outputParams) {
@@ -88,61 +129,6 @@ namespace LowCodePlatform.Plugin.Task_Arithmetic
 
         public void SwitchLanguage(LangaugeType type) {
             return;
-        }
-
-        /// <summary>
-        /// 点击确定按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Event_Button_Confirm_Click(object sender, RoutedEventArgs e) {
-            List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
-
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "计算类型",
-                IsBind = false,
-                UserParam = ComboBox_ArithmeticType.Text,
-            });
-
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "输入参数一",
-                IsBind = LinkEdit_Param1.IsBind,
-                UserParam = LinkEdit_Param1.UserParam,
-            });
-
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "输入参数二",
-                IsBind = LinkEdit_Param2.IsBind,
-                UserParam = LinkEdit_Param2.UserParam,
-            });
-            _confirmClick?.Invoke(inputParams);
-        }
-
-        /// <summary>
-        /// 点击执行按钮
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Event_Button_Execute_Click(object sender, RoutedEventArgs e) {
-            List<TaskViewInputParams> inputParams = new List<TaskViewInputParams>();
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "计算类型",
-                IsBind = false,
-                UserParam = ComboBox_ArithmeticType.Text,
-            });
-
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "输入参数一",
-                IsBind = LinkEdit_Param1.IsBind,
-                UserParam = LinkEdit_Param1.UserParam,
-            });
-
-            inputParams.Add(new TaskViewInputParams() {
-                ParamName = "输入参数二",
-                IsBind = LinkEdit_Param2.IsBind,
-                UserParam = LinkEdit_Param2.UserParam,
-            });
-            _executeClick?.Invoke(inputParams);
         }
 
         public void SetConfirmClickCallback(ConfirmClick confirmClickCallback) {

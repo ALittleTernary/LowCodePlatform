@@ -295,7 +295,7 @@ namespace LowCodePlatform.Plugin.Base
             if (!(e.Key == Key.Back || e.Key == Key.Delete || e.Key == Key.Left || e.Key == Key.Right ||
                 (e.Key >= Key.D0 && e.Key <= Key.D9) ||
                 (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9) ||
-                e.Key == Key.OemMinus || e.Key == Key.OemPeriod)) {
+                e.Key == Key.OemMinus || e.Key == Key.OemPeriod || e.Key == Key.Decimal)) {
                 e.Handled = true;  // 如果按下不允许的键，忽略它
             }
         }

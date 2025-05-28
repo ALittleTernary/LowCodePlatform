@@ -71,26 +71,63 @@ namespace LowCodePlatform.Plugin.Task_TemplateMatch
         }
 
         public TaskNodeStatus Run() {
-            //聚类相近点
+            ////聚类相近点
+            //Func<List<(Point, double)>, double, List<(Point, double)>> func_MergeClosePoints = (List<(Point, double)> points, double threshold) => {
+            //    List<(Point, double)> mergedPoints = new List<(Point, double)>();
+
+            //    foreach (var point in points) {
+            //        bool isMerged = false;
+
+            //        // 遍历已合并的点，检查是否与已有点接近
+            //        foreach (var mergedPoint in mergedPoints) {
+            //            double distance = Math.Sqrt(Math.Pow(point.Item1.X - mergedPoint.Item1.X, 2) + Math.Pow(point.Item1.Y - mergedPoint.Item1.Y, 2));
+            //            if (distance <= threshold) {
+            //                isMerged = true;
+            //                break;
+            //            }
+            //        }
+
+            //        // 如果没有接近的点，则将当前点添加到结果中
+            //        if (!isMerged) {
+            //            mergedPoints.Add(point);
+            //        }
+            //    }
+
+            //    return mergedPoints;
+            //};
+
             Func<List<(Point, double)>, double, List<(Point, double)>> func_MergeClosePoints = (List<(Point, double)> points, double threshold) => {
                 List<(Point, double)> mergedPoints = new List<(Point, double)>();
+                List<List<(Point, double)>> groupedPoints = new List<List<(Point, double)>>();
 
                 foreach (var point in points) {
                     bool isMerged = false;
 
-                    // 遍历已合并的点，检查是否与已有点接近
-                    foreach (var mergedPoint in mergedPoints) {
-                        double distance = Math.Sqrt(Math.Pow(point.Item1.X - mergedPoint.Item1.X, 2) + Math.Pow(point.Item1.Y - mergedPoint.Item1.Y, 2));
-                        if (distance <= threshold) {
-                            isMerged = true;
-                            break;
+                    // 遍历已合并的点组，检查是否与已有点接近
+                    foreach (var group in groupedPoints) {
+                        // 检查当前组中任意点是否与当前点接近
+                        foreach (var mergedPoint in group) {
+                            double distance = Math.Sqrt(Math.Pow(point.Item1.X - mergedPoint.Item1.X, 2) + Math.Pow(point.Item1.Y - mergedPoint.Item1.Y, 2));
+                            if (distance <= threshold) {
+                                // 如果点接近，加入当前组
+                                group.Add(point);
+                                isMerged = true;
+                                break;
+                            }
                         }
+                        if (isMerged) break;
                     }
 
-                    // 如果没有接近的点，则将当前点添加到结果中
+                    // 如果没有接近的点，则创建新组
                     if (!isMerged) {
-                        mergedPoints.Add(point);
+                        groupedPoints.Add(new List<(Point, double)> { point });
                     }
+                }
+
+                // 对每个组，取分数最大的点作为合并后的点
+                foreach (var group in groupedPoints) {
+                    var maxScorePoint = group.OrderByDescending(p => p.Item2).First();
+                    mergedPoints.Add(maxScorePoint);
                 }
 
                 return mergedPoints;

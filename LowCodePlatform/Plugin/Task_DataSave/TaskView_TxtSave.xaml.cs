@@ -51,6 +51,21 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                 else if (currentItem == "kBool") {
                     LinkEdit_TargetData.LinkContentType = LinkDataType.kBool;
                 }
+                else if (currentItem == "kListInt") {
+                    LinkEdit_TargetData.LinkContentType = LinkDataType.kListInt;
+                }
+                else if (currentItem == "kListFloat") {
+                    LinkEdit_TargetData.LinkContentType = LinkDataType.kListFloat;
+                }
+                else if (currentItem == "kListDouble") {
+                    LinkEdit_TargetData.LinkContentType = LinkDataType.kListDouble;
+                }
+                else if (currentItem == "kListString") {
+                    LinkEdit_TargetData.LinkContentType = LinkDataType.kListString;
+                }
+                else if (currentItem == "kListBool") {
+                    LinkEdit_TargetData.LinkContentType = LinkDataType.kListBool;
+                }
                 else {
                     return;
                 }
@@ -61,12 +76,12 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "存储路径",
                     IsBind = false,
-                    UserParam = TextBox_CsvSavePath.Text,
+                    UserParam = TextBox_TxtSavePath.Text,
                 });
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "存储文件名",
-                    IsBind = LinkEdit_CsvFileName.IsBind,
-                    UserParam = LinkEdit_CsvFileName.UserParam,
+                    IsBind = LinkEdit_TxtFileName.IsBind,
+                    UserParam = LinkEdit_TxtFileName.UserParam,
                 });
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "数据类型",
@@ -77,6 +92,11 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                     ParamName = "目标数据",
                     IsBind = LinkEdit_TargetData.IsBind,
                     UserParam = LinkEdit_TargetData.UserParam,
+                });
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "存储类型",
+                    IsBind = false,
+                    UserParam = ComboBox_SaveType.Text,
                 });
                 _confirmClick?.Invoke(inputParams);
             };
@@ -85,12 +105,12 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "存储路径",
                     IsBind = false,
-                    UserParam = TextBox_CsvSavePath.Text,
+                    UserParam = TextBox_TxtSavePath.Text,
                 });
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "存储文件名",
-                    IsBind = LinkEdit_CsvFileName.IsBind,
-                    UserParam = LinkEdit_CsvFileName.UserParam,
+                    IsBind = LinkEdit_TxtFileName.IsBind,
+                    UserParam = LinkEdit_TxtFileName.UserParam,
                 });
                 inputParams.Add(new TaskViewInputParams() {
                     ParamName = "数据类型",
@@ -102,9 +122,14 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                     IsBind = LinkEdit_TargetData.IsBind,
                     UserParam = LinkEdit_TargetData.UserParam,
                 });
+                inputParams.Add(new TaskViewInputParams() {
+                    ParamName = "存储类型",
+                    IsBind = false,
+                    UserParam = ComboBox_SaveType.Text,
+                });
                 _executeClick?.Invoke(inputParams);
             };
-            Button_CsvSaveOpen.Click += (s, e) => {
+            Button_TxtSaveOpen.Click += (s, e) => {
                 // 创建 FolderBrowserDialog 实例
                 System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
                 // 可选：设置对话框的初始目录
@@ -117,7 +142,7 @@ namespace LowCodePlatform.Plugin.Task_DataSave
 
                 // 获取选中的文件夹路径
                 string folderPath = folderDialog.SelectedPath;
-                TextBox_CsvSavePath.Text = folderPath;
+                TextBox_TxtSavePath.Text = folderPath;
             };
         }
 
@@ -132,26 +157,29 @@ namespace LowCodePlatform.Plugin.Task_DataSave
                 return;
             }
             JObject json = JObject.Parse(str);
-            TextBox_CsvSavePath.Text = json["TextBox_CsvSavePath"].ToString();
+            TextBox_TxtSavePath.Text = json["TextBox_TxtSavePath"].ToString();
+            ComboBox_SaveType.SelectedIndex = ((int)json["ComboBox_SaveType"]);
             ComboBox_DataType.SelectedIndex = ((int)json["ComboBox_DataType"]);
             LinkEdit_TargetData.JsonToView(json["LinkEdit_TargetData"].ToString());
-            LinkEdit_CsvFileName.JsonToView(json["LinkEdit_CsvFileName"].ToString());
+            LinkEdit_TxtFileName.JsonToView(json["LinkEdit_TxtFileName"].ToString());
         }
 
         public string ViewToJson() {
             JObject json = new JObject();
-            json["TextBox_CsvSavePath"] = TextBox_CsvSavePath.Text;
+            json["TextBox_TxtSavePath"] = TextBox_TxtSavePath.Text;
+            json["ComboBox_SaveType"] = ComboBox_SaveType.SelectedIndex;
             json["ComboBox_DataType"] = ComboBox_DataType.SelectedIndex;
             json["LinkEdit_TargetData"] = LinkEdit_TargetData.ViewToJson();
-            json["LinkEdit_CsvFileName"] = LinkEdit_CsvFileName.ViewToJson();
+            json["LinkEdit_TxtFileName"] = LinkEdit_TxtFileName.ViewToJson();
             return json.ToString();
         }
 
         public void ResetView() {
-            TextBox_CsvSavePath.Clear();
+            TextBox_TxtSavePath.Clear();
+            ComboBox_SaveType.SelectedIndex = 0;
             ComboBox_DataType.SelectedIndex = 0;
             LinkEdit_TargetData.ResetView();
-            LinkEdit_CsvFileName.ResetView();
+            LinkEdit_TxtFileName.ResetView();
         }
 
         public string ViewUniqueName(LangaugeType type) {
@@ -190,7 +218,7 @@ namespace LowCodePlatform.Plugin.Task_DataSave
             }
             _linkClick = linkClickCallback;
             LinkEdit_TargetData.SetLinkClickCallback(linkClickCallback);
-            LinkEdit_CsvFileName.SetLinkClickCallback(linkClickCallback);
+            LinkEdit_TxtFileName.SetLinkClickCallback(linkClickCallback);
         }
     }
 }

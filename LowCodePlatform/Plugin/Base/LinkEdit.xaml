@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="TextBox_Link" Grid.Column="0" Margin="5,5,5,5"  VerticalContentAlignment ="Center"/>
+            <TextBox x:Name="TextBox_Link" Grid.Column="0" Margin="5,5,5,5"  VerticalContentAlignment ="Center" AcceptsReturn="True"/>
             <Button x:Name="Button_Link" Grid.Column="1" Content="链接" ToolTip="链接" Margin="0,5,5,5"/>
             <Button x:Name="Button_Clear" Grid.Column="2" Content="清空" ToolTip="清空" Margin="0,5,5,5"/>
         </Grid>

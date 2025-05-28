@@ -131,7 +131,7 @@ namespace LowCodePlatform.Plugin.Base
                 json["ActualParam_Value"] = string.Join(",", Listdouble_ActualParam);
             }
             else if (ActualParam is List<string> Liststring_ActualParam) {
-                json["ActualParam_Type"] = "List<double>";
+                json["ActualParam_Type"] = "List<string>";
                 json["ActualParam_Value"] = string.Join(",", Liststring_ActualParam);
             }
             else if (ActualParam is List<bool> Listbool_ActualParam) {

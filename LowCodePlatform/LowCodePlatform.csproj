@@ -117,6 +117,10 @@
     <Compile Include="Plugin\Task_DataCompare\TaskView_DataCompare.xaml.cs">
       <DependentUpon>TaskView_DataCompare.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Plugin\Task_DataLoad\TaskOperation_TxtLoad.cs" />
+    <Compile Include="Plugin\Task_DataLoad\TaskView_TxtLoad.xaml.cs">
+      <DependentUpon>TaskView_TxtLoad.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Plugin\Task_DataSave\TaskOperation_TxtSave.cs" />
     <Compile Include="Plugin\Task_DataSave\TaskView_TxtSave.xaml.cs">
       <DependentUpon>TaskView_TxtSave.xaml</DependentUpon>
@@ -140,6 +144,14 @@
     <Compile Include="Plugin\Task_Ping\TaskOperation_Ping.cs" />
     <Compile Include="Plugin\Task_Ping\TaskView_Ping.xaml.cs">
       <DependentUpon>TaskView_Ping.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_RegexMatch\TaskOperation_RegexMatch.cs" />
+    <Compile Include="Plugin\Task_RegexMatch\TaskView_RegexMatch.xaml.cs">
+      <DependentUpon>TaskView_RegexMatch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Plugin\Task_Sort\TaskOperation_Sort.cs" />
+    <Compile Include="Plugin\Task_Sort\TaskView_Sort.xaml.cs">
+      <DependentUpon>TaskView_Sort.xaml</DependentUpon>
     </Compile>
     <Compile Include="Plugin\Task_Table\TaskOperation_Table.cs" />
     <Compile Include="Plugin\Task_Log\TaskOperation_Log.cs" />
@@ -269,6 +281,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Plugin\Task_DataLoad\TaskView_TxtLoad.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Plugin\Task_DataSave\TaskView_TxtSave.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -301,11 +317,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Plugin\Task_RegexMatch\TaskView_RegexMatch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Plugin\Task_ShowImage\TaskView_ShowImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Plugin\Sub_ShowImage\SubView_ShowImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Plugin\Task_Sort\TaskView_Sort.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

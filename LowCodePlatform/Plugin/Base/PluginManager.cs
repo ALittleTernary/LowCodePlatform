@@ -6,6 +6,7 @@ using LowCodePlatform.View;
 using LowCodePlatform.View.Base;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -314,8 +315,17 @@ namespace LowCodePlatform.Plugin.Base
             _editingItem = data;
 
             taskViewInterface.ResetView();
-            taskViewInterface.JsonToView(data.Data_JsonView);//还原界面硬编码
-            taskViewInterface.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams);
+            try {
+                taskViewInterface.JsonToView(data.Data_JsonView);//还原界面硬编码
+                taskViewInterface.ViewOperationDataUpdate(data.Data_InputParams, data.Data_OutputParams);
+            }
+            catch(Exception ex) {
+                Log.Warning(data.ItemName + "版本升级不适配,恢复默认配置:" + ex);
+                taskViewInterface.ResetView();
+                data.Data_InputParams = new List<TaskViewInputParams>();
+                data.Data_OutputParams = new List<TaskOperationOutputParams>();
+            }
+ 
             taskViewWindow.Title = data.ItemName;
             taskOperationInterface.EngineIsRunning = true;//打开界面后允许执行
             taskViewWindow.ShowDialog();//阻塞打开

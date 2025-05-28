@@ -1,9 +1,9 @@
-﻿<Window x:Class="LowCodePlatform.Plugin.Task_Arithmetic.TaskView_Arithmetic"
+﻿<Window x:Class="LowCodePlatform.Plugin.Task_Sort.TaskView_Sort"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Task_Arithmetic"
+             xmlns:local="clr-namespace:LowCodePlatform.Plugin.Task_Sort"
              mc:Ignorable="d" 
              xmlns:custom="clr-namespace:LowCodePlatform.Plugin.Base"
              Height="450" Width="350">
@@ -22,43 +22,42 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Content="计算类型" Margin="5"/>
-            <ComboBox x:Name="ComboBox_ArithmeticType" Grid.Row="0" Grid.Column="1" Margin="5" VerticalContentAlignment ="Center">
+            <Label Grid.Row="0" Grid.Column="0" Content="数据类型" Margin="5"/>
+            <ComboBox x:Name="ComboBox_DataType" Grid.Row="0" Grid.Column="1" Margin="5" VerticalContentAlignment ="Center">
                 <ComboBox.Items>
-                    <ComboBoxItem>加</ComboBoxItem>
-                    <ComboBoxItem>减</ComboBoxItem>
-                    <ComboBoxItem>乘</ComboBoxItem>
-                    <ComboBoxItem>除</ComboBoxItem>
+                    <ComboBoxItem>kListInt</ComboBoxItem>
+                    <ComboBoxItem>kListFloat</ComboBoxItem>
+                    <ComboBoxItem>kListDouble</ComboBoxItem>
+                    <ComboBoxItem>kListString</ComboBoxItem>
+                    <ComboBoxItem>kListTimeSpan</ComboBoxItem>
                 </ComboBox.Items>
             </ComboBox>
 
-            <custom:LinkEdit x:Name="LinkEdit_Param1" 
-                             Grid.Row="1" 
-                             Grid.Column="0" 
-                             Grid.ColumnSpan="2" 
-                             ColumnLayout="kLabel1TextBox2"
-                             LinkContentType="kDouble"
-                             LinkLabelText="参数一"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="排序方式" Margin="5"/>
+            <ComboBox x:Name="ComboBox_SortOrder" Grid.Row="1" Grid.Column="1" Margin="5" VerticalContentAlignment ="Center">
+                <ComboBox.Items>
+                    <ComboBoxItem>升序</ComboBoxItem>
+                    <ComboBoxItem>降序</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
 
-            <custom:LinkEdit x:Name="LinkEdit_Param2" 
+            <custom:LinkEdit x:Name="LinkEdit_InputArray" 
                              Grid.Row="2" 
                              Grid.Column="0" 
                              Grid.ColumnSpan="2" 
                              ColumnLayout="kLabel1TextBox2"
-                             LinkContentType="kDouble"
-                             LinkLabelText="参数二"/>
-
+                             LinkContentType="kListDouble"
+                             LinkLabelText="输入数组"/>
 
             <custom:LinkEdit x:Name="LinkEdit_Result" 
                              Grid.Row="3" 
                              Grid.Column="0" 
                              Grid.ColumnSpan="2" 
                              ColumnLayout="kLabel1TextBox2NoLink"
-                             LinkContentType="kDouble"
+                             LinkContentType="kString"
                              LinkLabelText="结果"/>
         </Grid>
 

@@ -240,13 +240,13 @@ namespace LowCodePlatform.Plugin.Base
                         dataGrid.Items.Add(new { String1 = LinkDataType.kInt.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<int>) && (LinkDataType == LinkDataType.kListInt || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
-
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kListInt.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(float) && (LinkDataType == LinkDataType.kFloat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kFloat.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<float>) && (LinkDataType == LinkDataType.kListFloat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
-
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kListFloat.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(double) && (LinkDataType == LinkDataType.kDouble || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kDouble.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
@@ -258,13 +258,13 @@ namespace LowCodePlatform.Plugin.Base
                         dataGrid.Items.Add(new { String1 = LinkDataType.kString.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<string>) && (LinkDataType == LinkDataType.kListString || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
-
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kListString.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(bool) && (LinkDataType == LinkDataType.kBool || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kBool.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(List<bool>) && (LinkDataType == LinkDataType.kListBool || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
-
+                        dataGrid.Items.Add(new { String1 = LinkDataType.kListBool.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
                     }
                     else if (outputParam.ActualParam.GetType() == typeof(Mat) && (LinkDataType == LinkDataType.kMat || (itemName == "创建局部变量" && LinkDataType == LinkDataType.kVariable))) {
                         dataGrid.Items.Add(new { String1 = LinkDataType.kMat.ToString(), String2 = i + "." + outputParam.ParamName, String3 = "", String4 = outputParam.Description });
@@ -445,11 +445,13 @@ namespace LowCodePlatform.Plugin.Base
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListInt:
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kFloat:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListFloat:
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kDouble:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
@@ -461,11 +463,13 @@ namespace LowCodePlatform.Plugin.Base
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListString:
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kBool:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kListBool:
+                    LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";
                     break;
                 case LinkDataType.kRegion:
                     LinkDataText = String1 + "(" + contentItem.Header.ToString() + "." + String2 + ")";

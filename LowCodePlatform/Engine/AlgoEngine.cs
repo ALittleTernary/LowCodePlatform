@@ -831,15 +831,24 @@ namespace LowCodePlatform.Engine
                 return startStatus;
             }
             //Log.Verbose(data.ItemName + "Start Success");
-
-            TaskNodeStatus runStatus = data.TaskOperation.Run();
-            if (runStatus != TaskNodeStatus.kSuccess) {
+            try {
+                TaskNodeStatus runStatus = data.TaskOperation.Run();
+                if (runStatus != TaskNodeStatus.kSuccess) {
+                    stopwatch.Stop();
+                    data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                    data.NodeStatus = runStatus;
+                    Log.Error(data.ItemName + "Run Fail");
+                    return runStatus;
+                }
+            }
+            catch (Exception ex) {
                 stopwatch.Stop();
                 data.Time = stopwatch.ElapsedMilliseconds.ToString();
-                data.NodeStatus = runStatus;
-                Log.Error(data.ItemName + "Run Fail");
-                return runStatus;
+                data.NodeStatus = TaskNodeStatus.kFlowStop;
+                Log.Error(data.ItemName + "运行崩溃:" + ex.ToString());
+                return TaskNodeStatus.kFlowStop;
             }
+
             //Log.Verbose(data.ItemName + "Run Success");
             List<TaskOperationOutputParams> finishOutputParams = new List<TaskOperationOutputParams>();
             TaskNodeStatus finishStatus = data.TaskOperation.Finish(out finishOutputParams);

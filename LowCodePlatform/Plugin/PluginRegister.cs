@@ -25,6 +25,9 @@ using LowCodePlatform.Plugin.Task_TemplateMatch;
 using LowCodePlatform.Plugin.Task_ArraySplit;
 using LowCodePlatform.Plugin.Task_CharRecognize;
 using LowCodePlatform.Plugin.Task_DataSave;
+using LowCodePlatform.Plugin.Task_RegexMatch;
+using LowCodePlatform.Plugin.Task_DataLoad;
+using LowCodePlatform.Plugin.Task_Sort;
 
 namespace LowCodePlatform.Plugin
 {
@@ -52,6 +55,9 @@ namespace LowCodePlatform.Plugin
             AddTaskPlugin(TaskPluginType.kVariableHandle, new TaskView_ArraySplit(), new TaskOperation_ArraySplit());//数组拆分
             AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_CharRecognize(), new TaskOperation_CharRecognize());//字符识别
             AddTaskPlugin(TaskPluginType.kResourcePublic, new TaskView_TxtSave(), new TaskOperation_TxtSave());//txt存储
+            AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_RegexMatch(), new TaskOperation_RegexMatch());//正则匹配
+            AddTaskPlugin(TaskPluginType.kResourceObtain, new TaskView_TxtLoad(), new TaskOperation_TxtLoad());//txt读取
+            AddTaskPlugin(TaskPluginType.kDataProcess, new TaskView_Sort(), new TaskOperation_Sort());//排序
         }
 
         /// <summary>

@@ -435,7 +435,12 @@ namespace LowCodePlatform.Engine
         public bool FlowRunStop(string name) {
             _threadDictinary.TryUpdate(name, false, true);
             foreach (var item in _linkDataDictinary) {
+
+                if (item.Value.TaskOperation == null) { 
+                    continue;
+                }
                 item.Value.TaskOperation.EngineIsRunning = false;
+                _linkDataDictinary.TryUpdate(item.Key, item.Value, item.Value);
             }
             return true;
         }

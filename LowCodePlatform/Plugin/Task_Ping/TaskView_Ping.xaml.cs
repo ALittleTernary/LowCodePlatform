@@ -43,9 +43,9 @@ namespace LowCodePlatform.Plugin.Task_Ping
                     UserParam = LinkEdit_IP.UserParam,
                 });
                 inputParams.Add(new TaskViewInputParams() {
-                    ParamName = "超时",
-                    IsBind = LinkEdit_TimeOut.IsBind,
-                    UserParam = LinkEdit_TimeOut.UserParam,
+                    ParamName = "ping类型",
+                    IsBind = false,
+                    UserParam = ComboBox_PingType.Text,
                 });
                 _confirmClick?.Invoke(inputParams);
             };
@@ -57,9 +57,9 @@ namespace LowCodePlatform.Plugin.Task_Ping
                     UserParam = LinkEdit_IP.UserParam,
                 });
                 inputParams.Add(new TaskViewInputParams() {
-                    ParamName = "超时",
-                    IsBind = LinkEdit_TimeOut.IsBind,
-                    UserParam = LinkEdit_TimeOut.UserParam,
+                    ParamName = "ping类型",
+                    IsBind = false,
+                    UserParam = ComboBox_PingType.Text,
                 });
                 _executeClick?.Invoke(inputParams);
             };
@@ -85,19 +85,19 @@ namespace LowCodePlatform.Plugin.Task_Ping
             }
             JObject json = JObject.Parse(str);
             LinkEdit_IP.JsonToView(json["LinkEdit_IP"].ToString());
-            LinkEdit_TimeOut.JsonToView(json["LinkEdit_TimeOut"].ToString());
+            ComboBox_PingType.SelectedIndex = ((int)json["ComboBox_PingType"]);
         }
 
         public void ResetView() {
             LinkEdit_IP.ResetView();
-            LinkEdit_TimeOut.ResetView();
+            ComboBox_PingType.SelectedIndex = 0;
             ListView_Result.ItemsSource = new ObservableCollection<string>();
         }
 
         public string ViewToJson() {
             JObject json = new JObject();
             json["LinkEdit_IP"] = LinkEdit_IP.ViewToJson();
-            json["LinkEdit_TimeOut"] = LinkEdit_TimeOut.ViewToJson();
+            json["ComboBox_PingType"] = ComboBox_PingType.SelectedIndex;
             return json.ToString();
         }
 
@@ -121,7 +121,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
             }
             _linkClick = linkClickCallback;
             LinkEdit_IP.SetLinkClickCallback(linkClickCallback);
-            LinkEdit_TimeOut.SetLinkClickCallback(linkClickCallback);
         }
 
         public void SwitchLanguage(LangaugeType type) {

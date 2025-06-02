@@ -28,11 +28,21 @@
                              LinkContentType="kString"
                              LinkLabelText="IP地址"/>
 
-            <custom:LinkEdit x:Name="LinkEdit_TimeOut" 
-                             Grid.Row="1" 
-                             ColumnLayout="kLabel1TextBox2"
-                             LinkContentType="kInt"
-                             LinkLabelText="Ping超时(毫秒)"/>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="ping类型" Margin="5"/>
+                <ComboBox x:Name="ComboBox_PingType" Grid.Column="1" Margin="5" VerticalContentAlignment ="Center">
+                    <ComboBox.Items>
+                        <ComboBoxItem>单次ping</ComboBoxItem>
+                        <ComboBoxItem>直到ping通</ComboBoxItem>
+                    </ComboBox.Items>
+                </ComboBox>
+            </Grid>
+
 
             <TabControl Grid.Row="3">
                 <TabItem Header="结果">

@@ -15,13 +15,22 @@ namespace LowCodePlatform.Plugin.Task_Ping
     {
         private string _ip = string.Empty;
 
-        private int _timeOut = -1;
+        private string _pingType = string.Empty;
 
         private bool _result = false;
 
         private List<string> _messages = new List<string>();
 
-        public bool EngineIsRunning { get; set; }
+        private bool _isRunning = false;
+
+        public bool EngineIsRunning {
+            get { 
+                return _isRunning;
+            }
+            set { 
+                _isRunning = value;
+            } 
+        }
 
         public TaskOperationPluginBase Clone() {
             return new TaskOperation_Ping();
@@ -47,10 +56,10 @@ namespace LowCodePlatform.Plugin.Task_Ping
                 return TaskNodeStatus.kFailure;
             }
             _ip = Convert.ToString(inputParams[0].ActualParam);
-            if (inputParams.Count < 2 || inputParams[1].ActualParam.GetType() != typeof(int)) {
+            if (inputParams.Count < 2 || inputParams[1].ActualParam.GetType() != typeof(string)) {
                 return TaskNodeStatus.kFailure;
             }
-            _timeOut = Convert.ToInt32(inputParams[1].ActualParam);
+            _pingType = Convert.ToString(inputParams[1].ActualParam);
 
             return TaskNodeStatus.kSuccess;
         }
@@ -59,17 +68,18 @@ namespace LowCodePlatform.Plugin.Task_Ping
             Ping pingSender = new Ping();
             _result = false;
             _messages.Clear();
-            while (EngineIsRunning) {
+
+
+            if (_pingType == "单次ping") {
                 try {
                     // 发送Ping请求
-                    PingReply reply = pingSender.Send(_ip, _timeOut);
+                    PingReply reply = pingSender.Send(_ip);
 
                     // 根据Ping的结果进行处理
                     if (reply.Status == IPStatus.Success) {
                         _result = true;
                         _messages.Add("来自 " + reply.Address.ToString() + " 的回复: 字节=" + reply.Buffer.Length
                         + " 时间=" + reply.RoundtripTime + "ms TTL=" + reply.Options.Ttl);
-                        break;
                     }
                     else {
                         _messages.Add("Ping失败，状态: " + reply.Status);
@@ -78,6 +88,32 @@ namespace LowCodePlatform.Plugin.Task_Ping
                 catch (PingException e) {
                     _messages.Add("Ping请求出现异常: " + e.Message);
                 }
+            }
+            else if (_pingType == "直到ping通") {
+                while (EngineIsRunning) {
+                    bool test = _isRunning;
+                    try {
+                        // 发送Ping请求
+                        PingReply reply = pingSender.Send(_ip);
+
+                        // 根据Ping的结果进行处理
+                        if (reply.Status == IPStatus.Success) {
+                            _result = true;
+                            _messages.Add("来自 " + reply.Address.ToString() + " 的回复: 字节=" + reply.Buffer.Length
+                            + " 时间=" + reply.RoundtripTime + "ms TTL=" + reply.Options.Ttl);
+                            break;
+                        }
+                        else {
+                            _messages.Add("Ping失败，状态: " + reply.Status);
+                        }
+                    }
+                    catch (PingException e) {
+                        _messages.Add("Ping请求出现异常: " + e.Message);
+                    }
+                }
+            }
+            else { 
+                return TaskNodeStatus.kFailure;
             }
 
             return TaskNodeStatus.kSuccess;

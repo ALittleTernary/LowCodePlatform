@@ -188,6 +188,7 @@ namespace LowCodePlatform.View
             //插件管理器中管理着task、view、res三种插件
             _pluginManager = new PluginRegister();
             _pluginManager.SetTaskSingleStepExecuteCallback(Event_Button_NodeRunOnce);
+            _pluginManager.SetTaskSingleStepCloseCallback(Event_Button_ProcessRunStop);
             _communicationCenter.Register("PluginManager", _pluginManager);
 
             _projectArea = new ProjectArea();

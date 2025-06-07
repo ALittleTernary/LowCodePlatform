@@ -205,7 +205,16 @@ namespace LowCodePlatform.View.Base
             }
         }
 
+        /// <summary>
+        /// 实际界面
+        /// </summary>
+        public TaskViewPluginBase TaskView = null;
 
+        /// <summary>
+        /// 实际运行类
+        /// 不应该运行时再创建运行类
+        /// </summary>
+        public TaskOperationPluginBase TaskOperation = null;
 
         /// <summary>
         /// 当前item的操作类型

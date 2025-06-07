@@ -108,6 +108,11 @@ namespace LowCodePlatform.Plugin.Base
         /// </summary>
         private RoutedEventHandler _taskSingleStepExecute = null;
 
+        /// <summary>
+        /// 任务插件单步执行，关闭界面后需要停止执行
+        /// </summary>
+        private RoutedEventHandler _taskSingleStepClose = null;
+
         public PluginManager() {
             RegisterLinkEditTaskPlugin();
             RegisterTaskPlugin();
@@ -308,7 +313,6 @@ namespace LowCodePlatform.Plugin.Base
             }
             Window taskViewWindow = GetTaskViewWindowByName(data.ItemName);
             TaskViewPluginBase taskViewInterface = GetTaskViewInterfaceByName(data.ItemName);
-            TaskOperationPluginBase taskOperationInterface = GetTaskOperationInterfaceByName(data.ItemName);
             if (taskViewWindow == null || taskViewInterface == null) {
                 return;
             }
@@ -327,11 +331,10 @@ namespace LowCodePlatform.Plugin.Base
             }
  
             taskViewWindow.Title = data.ItemName;
-            taskOperationInterface.EngineIsRunning = true;//打开界面后允许执行
             taskViewWindow.ShowDialog();//阻塞打开
 
-            //关闭界面后不再执行
-            taskOperationInterface.EngineIsRunning = false;
+            //关闭界面后不再执行,调用算法引擎里的整个工程停止
+            _taskSingleStepClose?.Invoke(null, null);
             _editingItem = null;
         }
 
@@ -415,6 +418,13 @@ namespace LowCodePlatform.Plugin.Base
                 return;
             }
             _taskSingleStepExecute = handler;
+        }
+
+        public void SetTaskSingleStepCloseCallback(RoutedEventHandler handler) {
+            if (handler == null) {
+                return;
+            }
+            _taskSingleStepClose = handler;
         }
 
         public FlowNode SummarizeBeforeNodes() {

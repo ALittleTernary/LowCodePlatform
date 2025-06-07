@@ -1184,8 +1184,18 @@ namespace LowCodePlatform.View
                 node.Data_InputParams = custom.Data_InputParams;//获取是值拷贝
                 node.Data_OutputParams = custom.Data_OutputParams;//获取是值拷贝
                 node.ItemView = custom;//item指针拿到，用于给算法引擎更新item的时间和运行状态
-                node.TaskView = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskViewInterfaceByName", custom.ItemName)) as TaskViewPluginBase;//editView指针拿到，用于给算法引擎更新editView相关参数
-                node.TaskOperation = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskOperationInterfaceByName", custom.ItemName)) as TaskOperationPluginBase;//operator指针深拷贝拿到，用于运算
+                if (custom.TaskView == null) {
+                    TaskViewPluginBase taskView = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskViewInterfaceByName", custom.ItemName)) as TaskViewPluginBase;//editView指针拿到，用于给算法引擎更新editView相关参数
+                    custom.TaskView = taskView;
+                }
+                node.TaskView = custom.TaskView;
+
+                if (custom.TaskOperation == null) {
+                    TaskOperationPluginBase taskOperation = _sendMessage?.Invoke(new CommunicationCenterMessage("CombinationArea", "PluginManager", "GetTaskOperationInterfaceByName", custom.ItemName)) as TaskOperationPluginBase;//operator指针深拷贝拿到，用于运算
+                    custom.TaskOperation = taskOperation;
+                }
+                node.TaskOperation = custom.TaskOperation;
+
                 if (node.TaskOperation != null) {
                     node.TaskOperation.EngineIsRunning = true;//总结数据时，将该值置为运行运行
                 }

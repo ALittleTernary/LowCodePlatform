@@ -21,16 +21,8 @@ namespace LowCodePlatform.Plugin.Task_Ping
 
         private List<string> _messages = new List<string>();
 
-        private bool _isRunning = false;
 
-        public bool EngineIsRunning {
-            get { 
-                return _isRunning;
-            }
-            set { 
-                _isRunning = value;
-            } 
-        }
+        public bool EngineIsRunning { get; set; }
 
         public TaskOperationPluginBase Clone() {
             return new TaskOperation_Ping();
@@ -91,7 +83,6 @@ namespace LowCodePlatform.Plugin.Task_Ping
             }
             else if (_pingType == "直到ping通") {
                 while (EngineIsRunning) {
-                    bool test = _isRunning;
                     try {
                         // 发送Ping请求
                         PingReply reply = pingSender.Send(_ip);

@@ -57,7 +57,7 @@ namespace LowCodePlatform.Engine
     public class FlowNode {
         /// <summary>
         /// 名字是整个工程里唯一的
-        /// 工程名+item名
+        /// 流程名
         /// </summary>
         public string Name { set; get; } = "";
 
@@ -195,6 +195,21 @@ namespace LowCodePlatform.Engine
         /// 任务引擎会对其更新参数
         /// </summary>
         public CombinationArea_TreeItem ItemView { set; get; } = null ;
+
+        private bool _engineIsRunning = true;
+
+        public bool EngineIsRunning { 
+            set {
+                foreach (var child in Children) { 
+                    child.EngineIsRunning = value;
+                }
+                _engineIsRunning = value;
+                TaskOperation.EngineIsRunning = value;
+            }
+            get {
+                return _engineIsRunning;
+            }
+        }
     }
 
     public class ThreadData
@@ -243,6 +258,11 @@ namespace LowCodePlatform.Engine
         /// 全局资源汇总字典，通过名字找到全局资源
         /// </summary>
         ConcurrentDictionary<string, ResOperationPluginBase> _globalResDictinary = new ConcurrentDictionary<string, ResOperationPluginBase>();
+
+        /// <summary>
+        /// 一个流程中的汇总字典，通过名字找到资源，用于停止
+        /// </summary>
+        ConcurrentDictionary<string, FlowNode> _flowDataDictinary = new ConcurrentDictionary<string, FlowNode>();
 
         // 线程名字，对应线程状态(并不需要把线程本身加入字典，拿到线程本身了也做不了什么事)
         private ConcurrentDictionary<string, bool> _threadDictinary = new ConcurrentDictionary<string, bool>();
@@ -296,8 +316,13 @@ namespace LowCodePlatform.Engine
             foreach (var item in _threadDictinary) {
                 _threadDictinary.TryUpdate(item.Key, false, true);
             }
-            foreach (var item in _linkDataDictinary) {
-                item.Value.TaskOperation.EngineIsRunning = false;
+            foreach (var flow in _flowDataDictinary) {
+                foreach (var task in flow.Value.Children) {
+                    if (task.TaskOperation == null) {
+                        continue;
+                    }
+                    task.EngineIsRunning = false;
+                }
             } 
             return true;
         }
@@ -434,13 +459,11 @@ namespace LowCodePlatform.Engine
         /// <returns></returns>
         public bool FlowRunStop(string name) {
             _threadDictinary.TryUpdate(name, false, true);
-            foreach (var item in _linkDataDictinary) {
-
-                if (item.Value.TaskOperation == null) { 
+            foreach (var item in _flowDataDictinary[name].Children) {
+                if (item.TaskOperation == null) { 
                     continue;
                 }
-                item.Value.TaskOperation.EngineIsRunning = false;
-                _linkDataDictinary.TryUpdate(item.Key, item.Value, item.Value);
+                item.EngineIsRunning = false;
             }
             return true;
         }
@@ -3171,6 +3194,7 @@ namespace LowCodePlatform.Engine
 
 
             _linkDataDictinary.Clear();
+            _flowDataDictinary.Clear();
             foreach (FlowNode flowNode in processData) {
                 if (flowNode == null) { 
                     continue;
@@ -3181,6 +3205,7 @@ namespace LowCodePlatform.Engine
                     }
                     action_PreorderTraversal(item);
                 }
+                _flowDataDictinary.TryAdd(flowNode.Name, flowNode);
             }
         }
 

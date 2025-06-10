@@ -1,506 +1,51 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\OpenCvSharp4.runtime.win.4.10.0.20241108\build\netstandard\OpenCvSharp4.runtime.win.props" Condition="Exists('..\packages\OpenCvSharp4.runtime.win.4.10.0.20241108\build\netstandard\OpenCvSharp4.runtime.win.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EF66C4DC-4DAE-4B6B-AC29-407A9D37B283}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>LowCodePlatform</RootNamespace>
-    <AssemblyName>LowCodePlatform</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <StartupObject />
   </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">
+  <AppendTargetFrameworkToOutputPath>output</AppendTargetFrameworkToOutputPath>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Debug'">
+  <AppendTargetFrameworkToOutputPath>output</AppendTargetFrameworkToOutputPath>
+</PropertyGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <Compile Remove="Properties\**" />
+    <Compile Remove="Solution\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <EmbeddedResource Remove="Solution\**" />
+    <None Remove="Properties\**" />
+    <None Remove="Solution\**" />
+    <Page Remove="Properties\**" />
+    <Page Remove="Solution\**" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Resource\tessdata\chi_sim.traineddata">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Control\AppDataSerializer.cs" />
-    <Compile Include="Control\LogControl.cs" />
-    <Compile Include="Engine\CommunicationCenter.cs" />
-    <Compile Include="Engine\CommunicationUser.cs" />
-    <Compile Include="Engine\AlgoEngine.cs" />
-    <Compile Include="Plugin\Base\ImageShow.xaml.cs">
-      <DependentUpon>ImageShow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Base\LinkEdit.xaml.cs">
-      <DependentUpon>LinkEdit.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Base\LinkSelectView.xaml.cs">
-      <DependentUpon>LinkSelectView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Base\SubViewPluginBase.cs" />
-    <Compile Include="Plugin\Base\PluginManager.cs" />
-    <Compile Include="Plugin\PluginRegister.cs" />
-    <Compile Include="Plugin\Base\ResOperationPluginBase.cs" />
-    <Compile Include="Plugin\Base\ResViewPluginBase.cs" />
-    <Compile Include="Plugin\Base\TaskOperationPluginBase.cs" />
-    <Compile Include="Plugin\Base\TaskViewPluginBase.cs" />
-    <Compile Include="Plugin\Res_Camera\ResOperation_USBCamera.cs" />
-    <Compile Include="Plugin\Res_Camera\ResView_USBCamera.xaml.cs">
-      <DependentUpon>ResView_USBCamera.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Res_Tcp\ResOperation_TcpSever.cs" />
-    <Compile Include="Plugin\Res_Tcp\ResView_TcpSever.xaml.cs">
-      <DependentUpon>ResView_TcpSever.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Sub_LineChart\SubView_LineChart.xaml.cs">
-      <DependentUpon>SubView_LineChart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Sub_Table\SubView_Table.xaml.cs">
-      <DependentUpon>SubView_Table.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Arithmetic\TaskOperation_Arithmetic.cs" />
-    <Compile Include="Plugin\Task_Arithmetic\TaskView_Arithmetic.xaml.cs">
-      <DependentUpon>TaskView_Arithmetic.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_ArraySplit\TaskOperation_ArraySplit.cs" />
-    <Compile Include="Plugin\Task_ArraySplit\TaskView_ArraySplit.xaml.cs">
-      <DependentUpon>TaskView_ArraySplit.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_BlobAnalysis\TaskOperation_BlobAnalysis.cs" />
-    <Compile Include="Plugin\Task_BlobAnalysis\TaskView_BlobAnalysis.xaml.cs">
-      <DependentUpon>TaskView_BlobAnalysis.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_CharRecognize\TaskOperation_CharRecognize.cs" />
-    <Compile Include="Plugin\Task_CharRecognize\TaskView_CharRecognize.xaml.cs">
-      <DependentUpon>TaskView_CharRecognize.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Control\TaskOperation_ElseIf.cs" />
-    <Compile Include="Plugin\Task_Control\TaskOperation_For.cs" />
-    <Compile Include="Plugin\Task_Control\TaskOperation_If.cs" />
-    <Compile Include="Plugin\Task_Control\TaskOperation_While.cs" />
-    <Compile Include="Plugin\Task_Control\TaskView_ElseIf.xaml.cs">
-      <DependentUpon>TaskView_ElseIf.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Control\TaskView_For.xaml.cs">
-      <DependentUpon>TaskView_For.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Control\TaskView_If.xaml.cs">
-      <DependentUpon>TaskView_If.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Control\TaskView_While.xaml.cs">
-      <DependentUpon>TaskView_While.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_DataCompare\TaskOperation_DataCompare.cs" />
-    <Compile Include="Plugin\Task_DataCompare\TaskView_DataCompare.xaml.cs">
-      <DependentUpon>TaskView_DataCompare.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_DataLoad\TaskOperation_TxtLoad.cs" />
-    <Compile Include="Plugin\Task_DataLoad\TaskView_TxtLoad.xaml.cs">
-      <DependentUpon>TaskView_TxtLoad.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_DataSave\TaskOperation_TxtSave.cs" />
-    <Compile Include="Plugin\Task_DataSave\TaskView_TxtSave.xaml.cs">
-      <DependentUpon>TaskView_TxtSave.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Delay\TaskOperation_Delay.cs" />
-    <Compile Include="Plugin\Task_Delay\TaskView_Delay.xaml.cs">
-      <DependentUpon>TaskView_Delay.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_LineChart\TaskOperation_LineChart.cs" />
-    <Compile Include="Plugin\Task_LineChart\TaskView_LineChart.xaml.cs">
-      <DependentUpon>TaskView_LineChart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_LocalVariable\TaskOperation_CreateLocalVariable.cs" />
-    <Compile Include="Plugin\Task_LocalVariable\TaskOperation_ModifyLocalVariable.cs" />
-    <Compile Include="Plugin\Task_LocalVariable\TaskView_CreateLocalVariable.xaml.cs">
-      <DependentUpon>TaskView_CreateLocalVariable.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_LocalVariable\TaskView_ModifyLocalVariable.xaml.cs">
-      <DependentUpon>TaskView_ModifyLocalVariable.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Ping\TaskOperation_Ping.cs" />
-    <Compile Include="Plugin\Task_Ping\TaskView_Ping.xaml.cs">
-      <DependentUpon>TaskView_Ping.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_RegexMatch\TaskOperation_RegexMatch.cs" />
-    <Compile Include="Plugin\Task_RegexMatch\TaskView_RegexMatch.xaml.cs">
-      <DependentUpon>TaskView_RegexMatch.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Sort\TaskOperation_Sort.cs" />
-    <Compile Include="Plugin\Task_Sort\TaskView_Sort.xaml.cs">
-      <DependentUpon>TaskView_Sort.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Table\TaskOperation_Table.cs" />
-    <Compile Include="Plugin\Task_Log\TaskOperation_Log.cs" />
-    <Compile Include="Plugin\Task_Log\TaskView_Log.xaml.cs">
-      <DependentUpon>TaskView_Log.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_ReadImage\TaskOperation_ReadImage.cs" />
-    <Compile Include="Plugin\Task_ReadImage\TaskView_ReadImage.xaml.cs">
-      <DependentUpon>TaskView_ReadImage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_ShowImage\TaskOperation_ShowImage.cs" />
-    <Compile Include="Plugin\Task_ShowImage\TaskView_ShowImage.xaml.cs">
-      <DependentUpon>TaskView_ShowImage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Sub_ShowImage\SubView_ShowImage.xaml.cs">
-      <DependentUpon>SubView_ShowImage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Table\TaskView_Table.xaml.cs">
-      <DependentUpon>TaskView_Table.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_Tcp\TaskOperation_TcpServer.cs" />
-    <Compile Include="Plugin\Task_Tcp\TaskView_TcpServer.xaml.cs">
-      <DependentUpon>TaskView_TcpServer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Plugin\Task_TemplateMatch\TaskOperation_TemplateMatch.cs" />
-    <Compile Include="Plugin\Task_TemplateMatch\TaskView_TemplateMatch.xaml.cs">
-      <DependentUpon>TaskView_TemplateMatch.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Progress.cs" />
-    <Compile Include="View\AvalonDockSimple.xaml.cs">
-      <DependentUpon>AvalonDockSimple.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\CombinationArea.xaml.cs">
-      <DependentUpon>CombinationArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Base\CombinationArea_TreeItem.xaml.cs">
-      <DependentUpon>CombinationArea_TreeItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Base\DragDropAdorner.cs" />
-    <Compile Include="View\GlobalResource.xaml.cs">
-      <DependentUpon>GlobalResource.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Base\InputDialog.xaml.cs">
-      <DependentUpon>InputDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\GlobalVariable.xaml.cs">
-      <DependentUpon>GlobalVariable.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\InteractiveArea.xaml.cs">
-      <DependentUpon>InteractiveArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\LogArea.xaml.cs">
-      <DependentUpon>LogArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\OptionArea.xaml.cs">
-      <DependentUpon>OptionArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ProjectArea.xaml.cs">
-      <DependentUpon>ProjectArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\WindowBase.xaml.cs">
-      <DependentUpon>WindowBase.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Plugin\Base\ImageShow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Base\LinkEdit.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Base\LinkSelectView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Res_Camera\ResView_USBCamera.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Res_Tcp\ResView_TcpSever.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Sub_LineChart\SubView_LineChart.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Sub_Table\SubView_Table.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Arithmetic\TaskView_Arithmetic.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_ArraySplit\TaskView_ArraySplit.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_BlobAnalysis\TaskView_BlobAnalysis.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_CharRecognize\TaskView_CharRecognize.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Control\TaskView_ElseIf.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Control\TaskView_For.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Control\TaskView_If.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Control\TaskView_While.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_DataCompare\TaskView_DataCompare.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_DataLoad\TaskView_TxtLoad.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_DataSave\TaskView_TxtSave.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Delay\TaskView_Delay.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_LineChart\TaskView_LineChart.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_LocalVariable\TaskView_CreateLocalVariable.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_LocalVariable\TaskView_ModifyLocalVariable.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Log\TaskView_Log.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Ping\TaskView_Ping.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_ReadImage\TaskView_ReadImage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_RegexMatch\TaskView_RegexMatch.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_ShowImage\TaskView_ShowImage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Sub_ShowImage\SubView_ShowImage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Sort\TaskView_Sort.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Table\TaskView_Table.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_Tcp\TaskView_TcpServer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Plugin\Task_TemplateMatch\TaskView_TemplateMatch.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\AvalonDockSimple.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\CombinationArea.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Base\CombinationArea_TreeItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\GlobalResource.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Base\InputDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\GlobalVariable.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\InteractiveArea.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\LogArea.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\OptionArea.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ProjectArea.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\WindowBase.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="AvalonDock, Version=4.72.1.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dirkster.AvalonDock.4.72.1\lib\net40\AvalonDock.dll</HintPath>
-    </Reference>
-    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
-      <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
-    </Reference>
-    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
-      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.3\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NCalc, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NCalc.NetCore.1.0.1\lib\netstandard2.0\NCalc.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenCvSharp4.4.10.0.20241108\lib\netstandard2.0\OpenCvSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenCvSharp.Extensions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenCvSharp4.Extensions.4.10.0.20241108\lib\netstandard2.0\OpenCvSharp.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Serilog, Version=4.2.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.4.2.0\lib\net471\Serilog.dll</HintPath>
-    </Reference>
-    <Reference Include="Serilog.Sinks.Console, Version=6.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.Sinks.Console.6.0.0\lib\net471\Serilog.Sinks.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=9.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.9.0.3\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Common, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Drawing.Common.9.0.3\lib\net462\System.Drawing.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Memory, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.6.2\lib\net462\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.1\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.1\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.2\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Threading.Channels, Version=9.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Channels.9.0.3\lib\net462\System.Threading.Channels.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.2\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Tesseract, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Tesseract.5.2.0\lib\net47\Tesseract.dll</HintPath>
-    </Reference>
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <Folder Include="Solution\" />
+    <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+    <PackageReference Include="LiveCharts.Wpf.Core" Version="0.9.8" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.5" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="NCalc.NetCore" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.11.0.20250507" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="9.0.5" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.5" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.5" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+    <PackageReference Include="System.Threading.Channels" Version="9.0.5" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resource\保存.png">
@@ -555,13 +100,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\OpenCvSharp4.runtime.win.4.10.0.20241108\build\netstandard\OpenCvSharp4.runtime.win.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCvSharp4.runtime.win.4.10.0.20241108\build\netstandard\OpenCvSharp4.runtime.win.props'))" />
-    <Error Condition="!Exists('..\packages\Tesseract.5.2.0\build\Tesseract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Tesseract.5.2.0\build\Tesseract.targets'))" />
-  </Target>
-  <Import Project="..\packages\Tesseract.5.2.0\build\Tesseract.targets" Condition="Exists('..\packages\Tesseract.5.2.0\build\Tesseract.targets')" />
 </Project>

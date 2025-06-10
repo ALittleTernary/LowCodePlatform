@@ -82,7 +82,7 @@ namespace LowCodePlatform.Plugin.Task_LocalVariable
                     nCalcResult = nCalcExpression.Evaluate();
                 }
                 catch (ArgumentException ex) {
-                    Log.Error("解析表达式失败:" + data.VariableExpression);
+                    Log.Error($"解析表达式{data.VariableExpression}失败:{ex}");
                     nCalcResult = null;
                 }
 

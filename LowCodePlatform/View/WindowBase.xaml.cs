@@ -205,6 +205,7 @@ namespace LowCodePlatform.View
             _combinationArea.SetClickRunOnceCallback(Event_Button_FlowRunOnce);
             _combinationArea.SetClickRunLoopCallback(Event_Button_FlowRunLoop);
             _combinationArea.SetClickRunStopCallback(Event_Button_FlowRunStop);
+            _combinationArea.SetClickRunResurveyCallback(Event_Button_FlowRunResurvey);
             Grid_CombinationArea.Children.Add(_combinationArea);
             _communicationCenter.Register("CombinationArea", _combinationArea);
 
@@ -582,6 +583,19 @@ namespace LowCodePlatform.View
                 return;
             }
             _sendMessage?.Invoke(new CommunicationCenterMessage("WindowBase", "AlgoEngine", "FlowRunStop", flowData.Name));
+        }
+
+        /// <summary>
+        /// 当前流程重测，仅流程支持重测，工程和单个节点不支持
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Event_Button_FlowRunResurvey(object sender, RoutedEventArgs e) {
+            FlowNode flowData = _combinationArea.SummarizeFlowNodes();
+            if (flowData == null) {
+                return;
+            }
+            _sendMessage?.Invoke(new CommunicationCenterMessage("WindowBase", "AlgoEngine", "FlowRunResurvey", flowData.Name));
         }
 
         /// <summary>

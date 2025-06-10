@@ -77,6 +77,8 @@ namespace LowCodePlatform.View
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "串行执行", Tag = ItemOperationType.kSerial });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "并行执行", Tag = ItemOperationType.kParallel });
             _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "return", Tag = ItemOperationType.kReturn });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "原路线重测", Tag = ItemOperationType.kOriginalResurvey });
+            _treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "切路线重测", Tag = ItemOperationType.kSwitchResurvey });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "停运当前流程", Tag = ItemOperationType.kStopFlow });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "重运当前流程", Tag = ItemOperationType.kReRunFlow });
             //_treeViewItem_ControlStatement.Items.Add(new TreeViewItem() { Header = "停运所有流程", Tag = ItemOperationType.kStopProcess });

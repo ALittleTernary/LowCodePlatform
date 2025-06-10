@@ -58,6 +58,7 @@ namespace LowCodePlatform.View
         private RoutedEventHandler _clickRunOnce = null;
         private RoutedEventHandler _clickRunLoop = null;
         private RoutedEventHandler _clickRunStop = null;
+        private RoutedEventHandler _clickRunResurvey = null;
 
         public CombinationArea() {
             InitializeComponent();
@@ -88,6 +89,7 @@ namespace LowCodePlatform.View
                 innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }); // 第一个按钮列
                 innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }); // 第二个按钮列
                 innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }); // 第三个按钮列
+                innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }); // 第四个按钮列
 
                 // 创建TextBlock
                 TextBlock textBlock_flowName = new TextBlock {
@@ -127,6 +129,16 @@ namespace LowCodePlatform.View
                 Grid.SetColumn(button_runStop, 4); // 设置为第五列
                 innerGrid.Children.Add(button_runStop);
                 button_runStop.Click += _clickRunStop;
+
+                // 创建第四个按钮
+                Button button_runResurvey = new Button {
+                    Content = "重测",
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Margin = new Thickness(5)
+                };
+                Grid.SetColumn(button_runResurvey, 5); // 设置为第五列
+                innerGrid.Children.Add(button_runResurvey);
+                button_runResurvey.Click += _clickRunResurvey;
 
                 // 将innerGrid添加到Grid的第一行
                 Grid.SetRow(innerGrid, 0);
@@ -690,6 +702,23 @@ namespace LowCodePlatform.View
                 return null;
             };
 
+            //获取父类是否是树节点，也就是判断该节点是不是没有父节点
+            Func<TreeViewItem, bool> func_IsParentTreeView = (TreeViewItem targetItem) => {
+                if (targetItem == null) {
+                    return false;
+                }
+                var parent_TreeViewItem = VisualTreeHelper.GetParent(targetItem);
+                // 遍历父节点，直到找到 TreeViewItem 类型
+                while (parent_TreeViewItem != null && !(parent_TreeViewItem is TreeViewItem)) {
+                    parent_TreeViewItem = VisualTreeHelper.GetParent(parent_TreeViewItem);
+                }
+                if (parent_TreeViewItem is TreeViewItem parentItem) {
+                    return false;
+                }
+
+                return true;
+            };
+
             //遍历整个树，计算到当前插入新增的编号
             Func<TreeView, int> func_CalSerialNumber = (TreeView tree) => {
                 //这个num要考虑已经被删除的
@@ -800,11 +829,29 @@ namespace LowCodePlatform.View
                 //目标项操作属性
                 ItemOperationType operationType = selectedItem_Header.OperationType;
 
-                if (operationType == ItemOperationType.kNone) {
+                //来源项
+                CombinationArea_TreeItem dataItem_Header = dataItem_Combination.Header as CombinationArea_TreeItem;
+                if (dataItem_Header == null) {
                     return;
                 }
+                //来源项操作属性
+                ItemOperationType dataType = dataItem_Header.OperationType;
+
+                if (operationType == ItemOperationType.kNone || dataType == ItemOperationType.kNone) {
+                    return;
+                }
+
+                //来源项禁止拥有父项
+                if (dataType == ItemOperationType.kOriginalResurvey || dataType == ItemOperationType.kSwitchResurvey) {
+                    //获取到目标是否有父项
+                    if (!func_IsParentTreeView(selectedItem)) {
+                        //如果目标有父项，则该目标不符合要求，不能将来源挪动到目标处
+                        return;
+                    }
+                }
+
                 //目标项禁止拥有子项的情况，常规处理
-                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn) {
+                if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn || operationType == ItemOperationType.kOriginalResurvey) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {
@@ -820,7 +867,7 @@ namespace LowCodePlatform.View
                     targetParentItems.Insert(index + 1, dataItem_Combination);
                 }
                 //目标项允许拥有子项的情况，特殊处理
-                else if (operationType == ItemOperationType.kIf || operationType == ItemOperationType.kElseIf || operationType == ItemOperationType.kElse || operationType == ItemOperationType.kFor || operationType == ItemOperationType.kWhile || operationType == ItemOperationType.kSerial || operationType == ItemOperationType.kParallel) {
+                else if (operationType == ItemOperationType.kIf || operationType == ItemOperationType.kElseIf || operationType == ItemOperationType.kElse || operationType == ItemOperationType.kFor || operationType == ItemOperationType.kWhile || operationType == ItemOperationType.kSerial || operationType == ItemOperationType.kParallel || operationType == ItemOperationType.kSwitchResurvey) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {
@@ -834,7 +881,7 @@ namespace LowCodePlatform.View
                     sourceParentItems.Remove(dataItem_Combination);
 
                     //如果目标项允许拥有子项的情况下又拥有子项，就目标项后即可
-                    if (selectedItem.Items.Count > 0) {
+                    if (selectedItem.Items.Count > 0 || dataType == ItemOperationType.kOriginalResurvey || dataType == ItemOperationType.kSwitchResurvey) {
                         int index = targetParentItems.IndexOf(selectedItem);
                         targetParentItems.Insert(index + 1, dataItem_Combination);
                     }
@@ -844,8 +891,8 @@ namespace LowCodePlatform.View
                     }
 
                 }
-                else { 
-                
+                else {
+
                 }
             }
             //目标指向某item，数据源于选项区，一般放在item同层级的item之后
@@ -868,12 +915,29 @@ namespace LowCodePlatform.View
                 }
                 //目标项操作属性
                 ItemOperationType operationType = selectedItem_Header.OperationType;
-                if (operationType == ItemOperationType.kNone) {
+                //来源项
+                CombinationArea_TreeItem dataOption_Header = dataItem_Option.Header as CombinationArea_TreeItem;
+                if (dataOption_Header == null) {
+                    return;
+                }
+                //来源项操作属性
+                ItemOperationType dataType = dataOption_Header.OperationType;
+
+                if (operationType == ItemOperationType.kNone || dataType == ItemOperationType.kNone) {
                     return;
                 }
 
+                //来源项禁止拥有父项
+                if (dataType == ItemOperationType.kOriginalResurvey || dataType == ItemOperationType.kSwitchResurvey) {
+                    //获取到目标是否有父项
+                    if (!func_IsParentTreeView(selectedItem)) {
+                        //如果目标有父项，则该目标不符合要求，不能将来源挪动到目标处
+                        return;
+                    }
+                }
+
                 //目标项禁止拥有子项的情况，常规处理
-                else if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn) {
+                if (operationType == ItemOperationType.kCommon || operationType == ItemOperationType.kBreak || operationType == ItemOperationType.kContinue || operationType == ItemOperationType.kStopFlow || operationType == ItemOperationType.kReRunFlow || operationType == ItemOperationType.kStopProcess || operationType == ItemOperationType.kReRunProcess || operationType == ItemOperationType.kReturn || operationType == ItemOperationType.kOriginalResurvey) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {
@@ -883,7 +947,7 @@ namespace LowCodePlatform.View
                     targetParentItems.Insert(index + 1, dataItem_Option);
                 }
                 //目标项允许拥有子项的情况，特殊处理
-                else if (operationType == ItemOperationType.kIf || operationType == ItemOperationType.kElseIf || operationType == ItemOperationType.kElse || operationType == ItemOperationType.kFor || operationType == ItemOperationType.kWhile || operationType == ItemOperationType.kSerial || operationType == ItemOperationType.kParallel) {
+                else if (operationType == ItemOperationType.kIf || operationType == ItemOperationType.kElseIf || operationType == ItemOperationType.kElse || operationType == ItemOperationType.kFor || operationType == ItemOperationType.kWhile || operationType == ItemOperationType.kSerial || operationType == ItemOperationType.kParallel || operationType == ItemOperationType.kSwitchResurvey) {
                     //获取到目标同层级所有的items
                     ItemCollection targetParentItems = func_FindParentItems(selectedItem);
                     if (targetParentItems == null) {
@@ -891,7 +955,7 @@ namespace LowCodePlatform.View
                     }
 
                     //如果目标项允许拥有子项的情况下又拥有子项，就目标项后即可
-                    if (selectedItem.Items.Count > 0) {
+                    if (selectedItem.Items.Count > 0 || dataType == ItemOperationType.kOriginalResurvey || dataType == ItemOperationType.kSwitchResurvey) {
                         int index = targetParentItems.IndexOf(selectedItem);
                         targetParentItems.Insert(index + 1, dataItem_Option);
                     }
@@ -900,8 +964,8 @@ namespace LowCodePlatform.View
                         selectedItem.Items.Add(dataItem_Option);
                     }
                 }
-                else { 
-                
+                else {
+
                 }
             }
             else { 
@@ -1552,6 +1616,13 @@ namespace LowCodePlatform.View
                 return;
             }
             _clickRunStop = runStop;
+        }
+
+        public void SetClickRunResurveyCallback(RoutedEventHandler runResurvey) {
+            if (runResurvey == null) {
+                return;
+            }
+            _clickRunResurvey = runResurvey;
         }
     }
 }

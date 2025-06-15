@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -45,13 +46,21 @@ namespace LowCodePlatform.Engine
         /// </summary>
         kFlowOnceRunning = 3,
         /// <summary>
+        /// 流程在单次执行中进行重测
+        /// </summary>
+        kFlowOnceResurvey = 4,
+        /// <summary>
         /// 流程循环运行中
         /// </summary>
-        kFlowLoopRunning = 4,
+        kFlowLoopRunning = 5,
+        /// <summary>
+        /// 流程在循环执行中进行重测
+        /// </summary>
+        kFlowLoopResurvey = 6,
         /// <summary>
         /// 当前是在单节点运行中
         /// </summary>
-        kNodeOnceRunning = 5,
+        kNodeOnceRunning = 7,
         /// <summary>
         /// 当前是在停止状态
         /// </summary>
@@ -284,7 +293,7 @@ namespace LowCodePlatform.Engine
 
 
         public AlgoEngine() { 
-
+            
         }
 
         public void Dispose() {
@@ -305,7 +314,7 @@ namespace LowCodePlatform.Engine
             }
 
             foreach (var item in processData) {
-                Task task = FlowRunOnce(item, 0, AlgoEngineStatus.kProcessOnceRunning);
+                Task task = FlowRunOnce(item);
             }
         }
 
@@ -320,7 +329,7 @@ namespace LowCodePlatform.Engine
             }
 
             foreach (var item in processData) {
-                Task task = FlowRunLoop(item, 0, AlgoEngineStatus.kProcessLoopRunning);
+                Task task = FlowRunLoop(item);
             }
         }
 
@@ -351,13 +360,12 @@ namespace LowCodePlatform.Engine
         /// <returns></returns>
         public async Task FlowRunOnce(FlowNode flowData, int index = 0, AlgoEngineStatus engineStatus = AlgoEngineStatus.kFlowOnceRunning) {
             //单个流程运行前将所有节点状态置空,重测不置空
-            if (index == 0) {
-                foreach (var item in flowData.Children) {
+            foreach (var item in flowData.Children) {
+                if (index == 0) {
                     InitializeTreeNodeStatus(item);
-                    item.EngineStatus = engineStatus;
                 }
+                item.EngineStatus = engineStatus;
             }
-
 
             Task task = new Task(() => {
                 try {
@@ -411,12 +419,12 @@ namespace LowCodePlatform.Engine
         /// </summary>
         /// <returns></returns>
         public async Task FlowRunLoop(FlowNode flowData, int index = 0, AlgoEngineStatus engineStatus = AlgoEngineStatus.kFlowLoopRunning) {
-            //单个流程运行前将所有节点状态置空,重测不置空
-            if (index == 0) {
-                foreach (var item in flowData.Children) {
+            foreach (var item in flowData.Children) {
+                //不是重测时，单个流程运行前将所有节点状态置空
+                if (engineStatus != AlgoEngineStatus.kFlowLoopResurvey) {
                     InitializeTreeNodeStatus(item);
-                    item.EngineStatus = engineStatus;
                 }
+                item.EngineStatus = engineStatus;
             }
 
             Task task = new Task(() => {
@@ -430,6 +438,7 @@ namespace LowCodePlatform.Engine
                         if (index == 0) {
                             foreach (var item in flowData.Children) {
                                 InitializeTreeNodeStatus(item);
+                                item.EngineStatus = AlgoEngineStatus.kProcessLoopRunning;
                             }
                         }
 
@@ -517,39 +526,45 @@ namespace LowCodePlatform.Engine
                 return false;
             }
             int resurveyIndex = 0;
+            AlgoEngineStatus algoEngineStatus = AlgoEngineStatus.kNone;
             for (int i = 0; i < flowNode.Children.Count; i++) { 
                 TaskNode node = flowNode.Children[i];
+                //找到开始的重测点，初始为0
                 if (node.OperationType == ItemOperationType.kOriginalResurvey || node.OperationType == ItemOperationType.kSwitchResurvey) {
                     resurveyIndex = i;
                 }
                 if (node.NodeStatus == TaskNodeStatus.kSuccess) {
                     continue;
                 }
-                switch (node.EngineStatus) {
-                    case AlgoEngineStatus.kNone:
-                        Log.Warning("算法引擎空置状态下暂时不支持重测机制");
-                        break;
-                    case AlgoEngineStatus.kProcessOnceRunning:
-                        Log.Warning("算法引擎工程单次运行状态下暂时不支持重测机制");
-                        break;
-                    case AlgoEngineStatus.kProcessLoopRunning:
-                        Log.Warning("算法引擎工程循环运行状态下暂时不支持重测机制");
-                        break;
-                    case AlgoEngineStatus.kFlowOnceRunning:
-                        Task taskFlowRunOnce = FlowRunOnce(flowNode, resurveyIndex);
-                        break;
-                    case AlgoEngineStatus.kFlowLoopRunning:
-                        Task taskFlowRunLoop = FlowRunLoop(flowNode, resurveyIndex);
-                        break;
-                    case AlgoEngineStatus.kNodeOnceRunning:
-                        Log.Warning("算法引擎单步执行运行状态下暂时不支持重测机制");
-                        break;
-                    case AlgoEngineStatus.kStop:
-                        Log.Warning("算法引擎已停止运行状态下暂时不支持重测机制");
-                        break;
-                    default:
-                        break;
-                }
+
+                algoEngineStatus = node.EngineStatus;
+                //当找到不为成功的第一个时，就跳出循环
+                break;
+            }
+            switch (algoEngineStatus) {
+                case AlgoEngineStatus.kNone:
+                    Log.Warning("算法引擎空置状态下暂时不支持重测机制");
+                    break;
+                case AlgoEngineStatus.kProcessOnceRunning:
+                    Log.Warning("算法引擎工程单次运行状态下暂时不支持重测机制");
+                    break;
+                case AlgoEngineStatus.kProcessLoopRunning:
+                    Log.Warning("算法引擎工程循环运行状态下暂时不支持重测机制");
+                    break;
+                case AlgoEngineStatus.kFlowOnceRunning:
+                    Task taskFlowRunOnce = FlowRunOnce(flowNode, resurveyIndex, AlgoEngineStatus.kFlowOnceResurvey);
+                    break;
+                case AlgoEngineStatus.kFlowLoopRunning:
+                    Task taskFlowRunLoop = FlowRunLoop(flowNode, resurveyIndex, AlgoEngineStatus.kFlowLoopResurvey);
+                    break;
+                case AlgoEngineStatus.kNodeOnceRunning:
+                    Log.Warning("算法引擎单步执行运行状态下暂时不支持重测机制");
+                    break;
+                case AlgoEngineStatus.kStop:
+                    Log.Warning("算法引擎已停止运行状态下暂时不支持重测机制");
+                    break;
+                default:
+                    break;
             }
             return true;
         }
@@ -3351,6 +3366,50 @@ namespace LowCodePlatform.Engine
                 data.NodeStatus = TaskNodeStatus.kFlowStop;
                 Log.Error(data.ItemName + "算法引擎出错，switchResurvey输入节点为空或者执行类型不为switchResurvey");
                 return TaskNodeStatus.kFlowStop;
+            }
+
+            if (data.EngineStatus == AlgoEngineStatus.kFlowOnceResurvey || data.EngineStatus == AlgoEngineStatus.kFlowLoopResurvey) {
+                //这里就是需要执行切路线重测中的内容的了
+                //串行执行
+                foreach (var childNode in data.Children) {
+                    //点击了暂停
+                    bool state_NoFindValue = _threadDictinary.TryGetValue(data.FlowName, out bool state_Pause);
+                    if (state_NoFindValue == false || state_Pause == false) {
+                        break;
+                    }
+                    TaskNodeStatus runStatus = SwitchToCorrectNodeOperation(childNode);
+                    if (runStatus == TaskNodeStatus.kNone) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                    else if (runStatus == TaskNodeStatus.kSuccess) {
+
+                    }
+                    else if (runStatus == TaskNodeStatus.kFailure) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFailure;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFailure;
+                    }
+                    else if (runStatus == TaskNodeStatus.kReturn) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kReturn;
+                        Log.Verbose(data.ItemName + "子节点请求返回");
+                        return TaskNodeStatus.kReturn;
+                    }
+                    else if (runStatus == TaskNodeStatus.kFlowStop) {
+                        stopwatch.Stop();
+                        data.Time = stopwatch.ElapsedMilliseconds.ToString();
+                        data.NodeStatus = TaskNodeStatus.kFlowStop;
+                        Log.Verbose(data.ItemName + "子节点出现问题导致停止执行");
+                        return TaskNodeStatus.kFlowStop;
+                    }
+                }
             }
 
             stopwatch.Stop();

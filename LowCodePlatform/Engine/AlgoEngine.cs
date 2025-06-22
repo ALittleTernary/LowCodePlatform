@@ -380,7 +380,7 @@ namespace LowCodePlatform.Engine
 
                         //选择到正确节点执行没成功，跳出整个循环，停止执行
                         if (runStatus == TaskNodeStatus.kNone) {
-                            break;
+
                         }
                         else if (runStatus == TaskNodeStatus.kSuccess) {
 
@@ -450,7 +450,7 @@ namespace LowCodePlatform.Engine
 
                         //选择到正确节点执行没成功，跳出整个循环，停止执行
                         if (runStatus == TaskNodeStatus.kNone) {
-                            break;
+
                         }
                         else if (runStatus == TaskNodeStatus.kSuccess) {
 
@@ -533,7 +533,7 @@ namespace LowCodePlatform.Engine
                 if (node.OperationType == ItemOperationType.kOriginalResurvey || node.OperationType == ItemOperationType.kSwitchResurvey) {
                     resurveyIndex = i;
                 }
-                if (node.NodeStatus == TaskNodeStatus.kSuccess) {
+                if (node.NodeStatus == TaskNodeStatus.kSuccess || node.NodeStatus == TaskNodeStatus.kNone) {
                     continue;
                 }
 
